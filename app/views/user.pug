@@ -1,0 +1,153 @@
+doctype
+html
+	head
+		meta(charset='utf-8')
+		meta(http-equiv='X-UA-Compatible', content='IE=edge')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		script(src='/static/js/jquery.js')
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+
+		script(src='/static/js/scrolling-nav.js')
+		script(src='/static/actionOnuserPage.js')
+		script(src="/socket.io/socket.io.js")
+		link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		link(rel='stylesheet', type='text/css', href='/static/css/scrolling-nav.css')
+		link(rel='stylesheet', type='text/css', href='/static/css/userPage.css')
+		link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro', rel='stylesheet')
+		script.
+			var tabData =!{JSON.stringify(tabData)}
+			var picturesData =!{JSON.stringify(picturesData)}
+			var like =!{JSON.stringify(like)}
+			var noPicture =!{JSON.stringify(noPicture)}
+			var socket = io();
+			var username =!{JSON.stringify(username)}
+
+
+
+
+
+			$(document).ready(function(){
+				$('.full-circle-notif-count').hide();
+				var socket = io();
+			  socket.emit('init', username);
+
+			  $('.full-circle-notif-count').hide();
+			  socket.on('notification', function(){
+			    //console.log('view from');
+			    /*view_notification = true;*/
+			    $('.full-circle-notif-count').toggle();
+			    })
+			  socket.on('like', function(){
+			    //console.log('like from',userUrl);
+			    $('.full-circle-notif-count').toggle();
+			    })
+			  socket.on('unlike', function(){
+			    //console.log('unlike from',userUrl);
+			    $('.full-circle-notif-count').toggle();
+			    })
+			  socket.on('message', function(msg){
+			    //console.log(msg.curr);
+			    //chatAppend(msg.msg, msg.curr);
+			    $('.full-circle-notif-count').toggle();
+			    })
+				var str = window.location.href;
+				var userUrl = str.slice(28);
+				var data = {};
+				data.userUrl = userUrl;
+				var matchingTags = [];
+				var userUsername = document.getElementById("userUsername")
+				userUsername.innerHTML = tabData.username
+				var userAge = document.getElementById("userAge")
+				userAge.innerHTML = tabData.age
+
+				/* We get the user's sex and display it regarding what we have in the db */
+				var userSex = document.getElementById("userSex")
+				if (tabData.sex === "m"){
+					userSex.innerHTML = "male"
+				} else if (tabData.sex === "f"){
+					userSex.innerHTML = "female"
+				} else if (tabData.sex === "u"){
+					userSex.innerHTML = "undefiend"
+				}
+
+				/* We get the user's orientation and display it regarding what we have in the db */
+				var userOrientation = document.getElementById("userOrientation")
+				if (tabData.orientation === "s"){
+					userOrientation.innerHTML = "Straight"
+				} else if (tabData.orientation === "g"){
+					userOrientation.innerHTML = "Gay"
+				} else if (tabData.orientation === "b") {
+					userOrientation.innerHTML = "bi"
+				}
+
+				var userlocation = document.getElementById("userLocation")
+				userLocation.innerHTML = tabData.city
+				var userBio = document.getElementById("userBio")
+				userBio.innerHTML = tabData.bio
+					var arr1 = picturesData.filter(function(itemTag_id) {
+						return itemTag_id.hasOwnProperty('tag_id');
+							});
+					var arr2 = picturesData.filter(function(itemId) {
+						return itemId.hasOwnProperty('id') && itemId.hasOwnProperty('tags');
+						});
+						arr1.forEach(elemTagId => {
+							arr2.forEach(elemTag => {
+								if (elemTagId.tag_id == elemTag.id){
+									matchingTags = elemTag.tags;
+									var userTags = document.getElementById("userTags")
+									userTags.innerHTML += `<a href=''></a> ${matchingTags} | `;
+								}
+							})
+							})
+				})
+
+
+	body(id='', data-spy='scroll', data-target='.navbar-fixed-top')
+		section(id='profile')
+			div(class='container')
+				div(class='row')
+					div(class='col-lg-12', id='positionForPictures')
+						div(id='', class='')
+							div(class='row')
+								a(href='http://localhost:3000/notif')
+									|Notifications
+								a(class='profile_page_link', href='http://localhost:3000/profile')
+									|Back to your profile page
+								a(class='logout_link', href='/logout')
+									|logout
+								div(class='container', id='userProfilePic')
+									-for(i = 0; i < picturesData.length; i++){
+										-if (picturesData[i].new_path){
+										img(height="200", width="200", src='/static/uploads/' + picturesData[i].new_path)
+										- }
+									- }
+								ul(class='userData')
+									li#userUsername
+									li#userAge
+									li#userSex
+									li#userOrientation
+									li#userLocation
+					div(class='row')
+						div(class='col-lg-12', id='userBio')
+							span#userBio
+					div(class='col-lg-12', id='userTags')
+						li#userTags
+							| Interests&nbsp :&nbsp
+					div(class='col-lg-12')
+						if like[0]
+							button(type='button', class='btn btn-primary btn-lg',id='likeButton', aria-hidden="true")
+								|Liked
+						else
+							button(type='button', class='btn btn-primary btn-lg',id='likeButton', aria-hidden="true")
+								|like
+					div(class='col-lg-12')
+						label(class='control-label')
+							button(type='', class='btn btn-primary', id='btnChat')
+								|Chat
+					div(class='col-lg-12', id='reportButton')
+						label(control-label)
+							button(type='button', class='btn btn-danger', id='ReportFakeUser')
+								|Report as fake user
+						button(type='button', class='btn btn-danger', id='blockUser')
+							|Block

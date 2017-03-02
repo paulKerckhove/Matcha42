@@ -1,0 +1,27 @@
+html
+  head
+    include ./partials/head.pug
+    link(rel='stylesheet', type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', type='text/css' href='/static/css/styles.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    body(id='', data-spy='scroll', data-target='.navbar-fixed-top')
+      section(id='profile')
+        div(class='container')
+          div(class='row')
+            div(class='col-lg-12', id='positionForPictures')
+              div(id='', class='')
+                div(class='row')
+                  a(class='notif_link',href='http://localhost:3000/notif')
+                    |Notifications
+                  a(class='profile_page_link', href='http://localhost:3000/profile')
+                    |Back to your profile page
+                  a(class='logout_link', href='/logout')
+                    |logout
+
+  body
+    div(class='container')
+      form(method='post', action='')
+        div(class='form-group')
+          p
+            iframe(src="//giphy.com/embed/wYyTHMm50f4Dm?html5=true", width="480", height="277", frameBorder="0")

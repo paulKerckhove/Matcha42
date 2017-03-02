@@ -1,0 +1,883 @@
+var express = require('express');
+var http = require('http'),
+    formidable = require('formidable'),
+    fs = require('fs'),
+    path = require('path');
+var router = express.Router();
+var pool = require('./connectionroutes');
+var async = require('async');
+var fun = require('./getFunctions');
+var NodeGeocoder = require('node-geocoder');
+var options = {
+    provider: 'google'
+  };
+var geocoder = NodeGeocoder(options);
+var Validator = require('./methods.js');
+
+
+module.exports = function(io){
+
+
+
+
+
+router.get('/', function (req, res) {
+  // var session = req.session;
+  var username = session.uniqueID;
+  var userInfosForPug;
+  var dataUserTagsLoop = [];
+  var count = 0;
+  var Ustags;
+  var taglen;
+  var piclen;
+  var countPic = 0;
+  var dataUserPictures = [];
+  let blocked = [];
+  checkIfBlocked(pool, username)
+  .then(function(rows){
+
+    if (rows.length > 0){
+      blocked = rows;
+    } else {
+
+    }
+  })
+  fun.getUserprofile(username, function (err, callback) {
+    if (err) {
+      res.redirect('/login');
+    } else {
+      userInfosForPug = callback;
+      /*console.log("about to log userInfosForPug " + userInfosForPug);*/
+      fun.getUserTags(username, function (err, callback) {
+        var  dataUserTags = [];
+        if (err) {
+          //console.log(err);
+        } else {
+          dataUserTags = callback;
+          async.each(dataUserTags, function(drdre, callback){
+            pool.getConnection(function (err, connection) {
+              connection.query('SELECT * FROM tags WHERE id = ?', drdre.tag_id , function (err, rows, fields) {
+                if (err) {
+                  //console.log(err);
+                  connection.release();
+                  callback(err);
+                } else {
+                  /*console.log(rows[0]);*/
+                  dataUserTagsLoop[count] = rows[0].tags;
+                  count++;
+                  connection.release();
+                  callback(null, dataUserTagsLoop);
+                }
+              });
+            });
+          }),
+          fun.getUserPicturesMofo(username, function (err, callback){
+            if (err){
+              //console.log("err");
+            } else {
+              dataUserPictures = callback;
+              /*console.log(dataUserPictures);*/
+              async.each(dataUserPictures, function(biggie, callback){
+                dataUserPictures[countPic] = dataUserPictures[countPic].new_path;
+                countPic++;
+                /*console.log(dataUserPictures);*/
+                callback(null, dataUserPictures);
+              },
+              function (err, results) {
+              /*console.log(dataUserTagsLoop);*/
+              taglen = dataUserTagsLoop.length;
+              piclen = dataUserPictures.length;
+
+              return res.render('./profile.pug', {userinfo: userInfosForPug, tags: dataUserTagsLoop, taglen: taglen, piclen: piclen, dataUserPictures: dataUserPictures, blocked :blocked});
+            })
+            }
+          });
+        }
+      })
+    }
+  })
+});
+
+
+router.post('/profile', function (req, res) {
+  val = new Validator({
+        dataSource: req.body,
+        constraints: [{
+                name: 'firstname',
+                min: 3,
+                regex: /^[a-zA-Z]*$/
+            },
+            {
+                name: 'lastname',
+                min: 3,
+                regex: /^[a-zA-Z]*$/
+            },
+            {
+                name: 'username',
+                min: 4,
+                max: 12,
+                regex: /^[a-zA-Z0-9]*$/
+            },
+            {
+                name: 'age',
+                regex: /^[0-9]*$/
+            },
+            {
+                name: 'Email',
+                regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            },
+            {
+                name: 'bioBox',
+                regex: /^[a-zA-Z ]*$/
+            }
+        ]
+    })
+    if (!val.validate()) {
+        return res.send('wrong profile informations')
+    }
+
+
+
+  username = session.uniqueID;
+  var bio = req.body.bioBox;
+  var sex = req.body.sex;
+  var orientation = req.body.orientation_filter;
+  var age = req.body.age;
+  var first_name = req.body.firstName;
+  var last_name = req.body.lastName;
+  var email = req.body.userEmail;
+  if (parseInt(req.body.age) < 18 || parseInt(req.body.age) > 100) {
+    return res.send('wrong age')
+    // return res.redirect('/profile')
+  }
+
+  function UserStart(username, callback) {
+    async.waterfall([
+      function(cb) {
+        pool.getConnection(function (err, connection) {
+
+          var data = {
+            bio: bio,
+            username: username,
+            sex: sex,
+            orientation: orientation,
+            age: age,
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+          };
+          connection.query('UPDATE IGNORE usersinfo SET ?', data , function (err, rows, fields) {
+            if (err) {
+              //console.log("error 1" + err);
+              connection.release();
+            } else {
+              connection.release();
+            }
+            callback(null, "");
+          });
+        });
+      }
+    ],
+    function (err, bio) {
+      if (err) {
+        //console.log(err);
+        callback(err);
+      } else {
+        callback(null, bio);
+      }
+    })
+  }
+  UserStart(username, function (err, callback) {
+    if (err) {
+      res.send('wrong profile informations')
+    } else {
+      return res.status(201).send('test')
+    }
+  })
+});
+
+
+
+router.post('/tagsPost', function(req, res) {
+  username = session.uniqueID;
+  var tags;
+  tags = req.body['userTags[]'];
+  function UserStart(username, callback) {
+    async.waterfall([
+      function (cb) {
+        async.each(tags, function(tags, callback){
+          var data = {
+            tags: tags,
+          };
+            pool.getConnection(function (err, connection) {
+              if (err) {
+                //console.log(err);
+                callback(err);
+              }
+              connection.query('SELECT * FROM tags WHERE tags = ?', [tags], function(err, rows, fields) {
+                if (rows.length == 0) {
+                  connection.query('INSERT INTO tags SET ?', data , function (err, rows, fields) {
+                    connection.release();
+                    callback();
+                  });
+                } else {
+                  connection.release();
+                  callback();
+                }
+              });
+            });
+        },
+        function (err) {
+          if (err) {
+            //console.log(err);
+            cb(err);
+          } else {
+            cb(null, null);
+          }
+        });
+      },
+      function (results, cb) {
+        async.each(tags, function(tags, callback){
+          var data = {
+            tags: tags,
+          };
+            pool.getConnection(function (err, connection) {
+              if (err) {
+                //console.log(err);
+                callback(err);
+              }
+              connection.query('SELECT * FROM tags WHERE tags = ?', [tags], function(err, rows, fields) {
+                if (rows.length > 0) {
+                  var usertagInsert = {
+                    username: username,
+                    tag_id: rows[0].id
+                  };
+                  connection.query('INSERT INTO user_tags SET ?', usertagInsert, function (err, result) {
+                    if (err) {
+                      //console.log(err);
+                      connection.release();
+                      callback(err);
+                    } else {
+                      connection.release();
+                      callback();
+                    }
+                  });
+                } else {
+                  connection.release();
+                  callback("error");
+                }
+              });
+            });
+        },
+        function (err) {
+          if (err) {
+            //console.log(err);
+            cb(err);
+          } else {
+            cb(null, null);
+          }
+        });
+      }
+    ],
+    function (err, results) {
+      if (err) {
+        //console.log(err);
+        callback(err);
+      } else {
+        callback(null, null);
+      }
+    });
+  }
+  UserStart(username, function (err, callback) {
+      res.redirect(err ? 401 : 200, '/profile');
+  })
+});
+
+
+
+
+router.post('/userPhoto', function(req, res) {
+  checkForNumberOfPics(pool, username)
+  .then(function(rows){
+    if (rows.length > 5) {
+      return res.render('/profile')
+    } else {
+      username = session.uniqueID;
+      var form = new formidable.IncomingForm();
+      form.parse(req, function(err, fields, files) {
+        if (files.file.type == 'image/jpeg' || files.file.type == 'image/jpg' || files.file.type == 'image/png'){
+          var old_path = files.file.path,
+              file_size = files.file.size,
+              file_ext = files.file.name.split('.').pop(),
+              upload_name = Date.now() + '.' + username + '.' + file_ext;
+              new_path = path.join(process.env.PWD, '/public/uploads/', upload_name);
+          fs.readFile(old_path, function(err, data) {
+              fs.writeFile(new_path, data, function(err) {
+                function UserUpload(username, callback) {
+                  async.waterfall([
+                    function(cb) {
+                      pool.getConnection(function (err, connection) {
+                        if (err) {
+                          //console.log(err + "error in db connection");
+                          cb(err);
+                        }
+                        var photoUpload = {
+                          username: username,
+                          new_path: upload_name
+                        }
+                        connection.query('INSERT INTO photos SET ?', photoUpload , function (err, rows, fields) {
+                          if (err) {
+                            //console.log("error in db : " + err);
+                            connection.release();
+                            cb(err);
+                          } else {
+                            cb(null, photoUpload);
+                          }
+                        });
+                      });
+                    }
+                  ],
+                  function (err, photoUpload) {
+                    if (err) {
+                      //console.log(err);
+                      callback(err);
+                    } else {
+                      callback(null, photoUpload);
+                    }
+                  })
+                }
+                UserUpload(username, function (err, callback) {
+                  if (err) {
+                    //console.log("There was an error uploading you photo");
+                  } else {
+                    fs.unlink(old_path, function(err) {
+                      var pageData = {
+                        new_path: upload_name
+                      }
+                      /*console.log(pageData);*/
+                        if (err) {
+                            res.status(500);
+                            res.json({'success': false});
+                        } else {
+                         res.status(201);
+                         return res.redirect('/profile');
+                        }
+                    });
+                  }
+                })
+
+              });
+            });
+        } else {
+          res.send("wrong format")
+        }
+        });
+    }
+  })
+});
+
+
+router.post('/changeGenderBio', function (req, res) {
+
+  val = new Validator({
+        dataSource: req.body,
+        constraints: [{
+                name: 'firstname',
+                min: 3,
+                regex: /^[a-zA-Z]*$/
+            },
+            {
+                name: 'lastname',
+                min: 3,
+                regex: /^[a-zA-Z]*$/
+            },
+            {
+                name: 'username',
+                min: 4,
+                max: 12,
+                regex: /^[a-zA-Z0-9]*$/
+            },
+            {
+                name: 'age',
+                regex: /^[0-9]*$/
+            },
+            {
+                name: 'Email',
+                regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            },
+            {
+                name: 'bioBox',
+                regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            }
+        ]
+    })
+    if (!val.validate()) {
+        return res.send('wrong profile informations')
+    } else {
+      username = session.uniqueID;
+      var bio = req.body.bioBox;
+      var sex = req.body.sex;
+      var orientation = req.body.orientation_filter;
+      var age = req.body.age;
+      if (parseInt(req.body.age) < 18 || parseInt(req.body.age) > 100) {
+        return res.send('wrong age')
+      }
+      function UserchangeGenderBio(username, callback) {
+        async.waterfall([
+          function(cb) {
+            pool.getConnection(function (err, connection) {
+              var data = {
+                bio: bio,
+                username: username,
+                sex: sex,
+                orientation: orientation,
+                age: age
+              };
+              connection.query('INSERT INTO usersinfo ON DUPLICATE KEY UPDATE ?', data , function (err, rows, fields) {
+                if (err) {
+                  // console.log("error 1" + err);
+                  connection.release();
+                } else {
+                  connection.release();
+                }
+                callback(null, "");
+              });
+            });
+          }
+        ],
+        function (err, bio) {
+          if (err) {
+            callback(err);
+          } else {
+            callback(null, bio);
+          }
+        })
+      }
+      UserchangeGenderBio(username, function (err, callback) {
+        if (err) {
+          res.redirect('/login');
+          // console.log("login again");
+        } else {
+          res.redirect('/home');
+        }
+      })
+    }
+
+});
+
+
+router.post('/changeTags', function (req, res) {
+  val = new Validator({
+        dataSource: req.body,
+        constraints: [{
+                name: 'userTags',
+                regex: /^[a-zA-Z ]*$/
+              }]
+        })
+        if (!val.validate()) {
+            return res.redirect('/profile')
+        }
+  username = session.uniqueID;
+  var tags;
+  tags = req.body['userTags[]'];
+  function UserChangeTags(username, callback) {
+    async.waterfall([
+      function(cb) {
+        pool.getConnection(function (err, connection) {
+
+          connection.query('DELETE FROM user_tags WHERE username = ?', username , function (err, rows, fields) {
+            if (err) {
+              // console.log(err);
+              connection.release();
+            } else {
+              connection.query('SELECT * FROM tags WHERE tags = ?', [tags], function(err, rows, fields) {
+                  connection.query('INSERT INTO tags SET ?', [tags]  , function (err, rows, fields) {
+                    connection.release();
+                    /*callback(null, tags);*/
+                  });
+              });
+            }
+          });
+        });
+      }
+    ],
+    function (err, tags) {
+      if (err) {
+        callback(err);
+      } else {
+        callback(null, tags);
+      }
+    })
+  }
+  UserChangeTags(username, function (err, callback) {
+    if (err) {
+      res.send("error")
+      res.redirect('/profile');
+
+    } else {
+      return res.redirect('/profile');
+      return res.status(201).send('test');
+    }
+  })
+});
+
+
+/*                      /*
+         Querys
+/*                      */
+
+
+
+function query (pool, sql, values) {
+  return new Promise((resolve, reject) => {
+    pool.getConnection((err, connection) => {
+      var query = sql
+      connection.query(query, values, (err, rows) => {
+        connection.release()
+        err ? reject(err) : resolve(rows)
+      })
+    })
+  })
+}
+
+
+function checkForNumberOfPics (pool, username) {
+  return query(pool, 'SELECT * FROM photos WHERE username = ?', [username])
+}
+
+function InsertLocation (pool, username, userLocationDataPush) {
+  return query(pool, 'INSERT INTO userlocation (username, latitude, longitude, country, city, zipcode) VALUES (?, ?, ?, ?, ?, ?)', [[username], [userLocationDataPush.latitude], [userLocationDataPush.longitude], [userLocationDataPush.country], [userLocationDataPush.city], [userLocationDataPush.zipcode]])
+}
+
+
+function updateUserLocation (pool, locationPush) {
+  return query(pool, 'UPDATE userlocation SET ? WHERE username = ?', [locationPush])
+}
+
+
+function checkfForLocationInRows(pool, username) {
+  return query(pool, 'SELECT * FROM userlocation WHERE username = ?', username)
+}
+
+
+function InsertLocationOnDeny (pool, username, userLocationDataDeniedPush) {
+  return query(pool, 'INSERT INTO userlocation (username, latitude, longitude, country, city, zipcode) VALUES (?, ?, ?, ?, ?, ?)', [[username], [userLocationDataDeniedPush.latitude], [userLocationDataDeniedPush.longitude], [userLocationDataDeniedPush.country], [userLocationDataDeniedPush.city], [userLocationDataDeniedPush.zipcode]])
+}
+
+
+function UpdateLocationOnDeny (pool, userLocationDataDeniedPush, username) {
+  return query(pool, 'UPDATE userlocation SET ? WHERE username = ?', [[userLocationDataDeniedPush], [username]])
+}
+
+function checkforTags (pool, username) {
+  return query(pool, 'SELECT tags.tags FROM tags INNER JOIN user_tags ON user_tags.tag_id = tags.id WHERE user_tags.username = ?', [username])
+}
+
+function insertTagsInDb (pool, tags) {
+  return query(pool, 'INSERT INTO TAGS VALUES ?', [tags])
+}
+
+
+function getTheUserTags (pool, tags) {
+  return query(pool, 'SELECT * FROM tags WHERE tags = ?' [tags])
+}
+
+// function insertTagsInDb2 ()
+
+
+router.post('/userLocation', function (req, res){
+
+  username = session.uniqueID;
+  var long;
+  var lat;
+  lat = req.body.latitude;
+  long = req.body.longitude;
+  var userLocationData;
+  var latitude;
+  var longitude;
+  var country;
+  var city;
+  var zipcode;
+  var userLocationDataPush = {};
+  geocoder.reverse({lat:lat, lon:long}, function(err, result){
+    userLocationData = result;
+    latitude = userLocationData[0].latitude;
+    longitude = userLocationData[0].longitude;
+    country = userLocationData[0].country;
+    city = userLocationData[0].city;
+    zipcode = userLocationData[0].zipcode;
+    userLocationDataPush = {
+      latitude,
+      longitude,
+      country,
+      city,
+      zipcode,
+      username
+    };
+
+    checkfForLocationInRows(pool, username)
+    .then(function(rows){
+      if (rows.length == 0){
+        InsertLocation(pool, username, userLocationDataPush)
+      } else if (rows.length > 0) {
+        // console.log("error here");
+        // var locationPush = [userLocationDataPush, username];
+        // updateUserLocation(pool, locationPush)
+        pool.getConnection(function (err, connection) {
+          var location = [userLocationDataPush, username];
+          connection.query('UPDATE userlocation SET ? WHERE username = ?', location, function(err, rows, fields){
+            connection.release();
+          })
+        })
+      }
+    })
+  });
+});
+
+
+router.post('/userLocationDenied', function (req, res){
+  username = session.uniqueID;
+  var longitude;
+  var latitude;
+  var city;
+  var userLocationData;
+  var country;
+  var zipcode;
+  latitude = req.body.lat;
+  longitude = req.body.lon;
+  country = req.body.country;
+  city = req.body.city;
+  zipcode = req.body.zip;
+  userLocationDataDeniedPush = {
+    username,
+    latitude,
+    longitude,
+    country,
+    city,
+    zipcode
+  };
+
+  checkfForLocationInRows(pool, username)
+  .then(function(rows){
+    if (rows.length == 0){
+      InsertLocationOnDeny(pool, username, userLocationDataDeniedPush)
+    } else if (rows.length > 0) {
+      pool.getConnection(function (err, connection) {
+        var locationDeniedPush = [userLocationDataDeniedPush, username];
+        connection.query('UPDATE userlocation SET ? WHERE username = ?', locationDeniedPush, function(err, rows, fields){
+          connection.release();
+        })
+      })
+    }
+  })
+});
+
+
+router.post('/userLocationSearch', function (req, res){
+  val = new Validator({
+        dataSource: req.body,
+        constraints: [{
+                name: 'search',
+                regex: /^[a-zA-Z ]*$/
+            }
+        ]
+    })
+    if (!val.validate()) {
+        return res.redirect('/profile')
+    }
+  username = session.uniqueID;
+  var latitude;
+  var longitude;
+  var country;
+  var city;
+  var zipcode;
+  var usearLocationSearch;
+  var inputUserLocationPush = {};
+  var userZips = {};
+  var search = req.body.search;
+  locationCheck(search, function(err, callback){
+    if (err == "error wrong input"){
+      res.send({error:  "city does not exist"});
+    } else if  (err){
+      res.send({error: "pb with geocoder"});
+    } else {
+      userLocationChoice(username, callback, function (err, callback){
+        if (err){
+          res.send({error: "pb geocoder 2"});
+        } else {
+          res.redirect('/profile');
+           }
+         })
+    }
+  });
+function locationCheck(search, callback){
+  geocoder.geocode(search, function(err, res) {
+    if (err) {
+      callback(err);
+    } else if (res[0] == undefined){
+       callback("error wrong input");
+       return res.status(201).send('test');
+    } else {
+    userLocationSearch = res;
+    latitude = userLocationSearch[0].latitude;
+    longitude = userLocationSearch[0].longitude;
+    country = userLocationSearch[0].country;
+    city = userLocationSearch[0].city;
+    geocoder.reverse({lat:latitude, lon:longitude}, function(err, res) {
+      if(err){
+        callback(err);
+      }
+      userZips = res;
+      latitude = userZips[0].latitude;
+      longitude = userZips[0].longitude;
+      country = userZips[0].country;
+      city = userZips[0].city;
+      zipcode = res[0].zipcode;
+    inputUserLocationPush = {
+      username,
+      latitude,
+      longitude,
+      country,
+      city,
+      zipcode
+    };
+    callback(null, inputUserLocationPush);
+      });
+    }
+  });
+}
+  function userLocationChoice(username, inputUserLocationPush, callback){
+        async.each(inputUserLocationPush, function (userZips, callback){
+          pool.getConnection(function (err, connection){
+            if (err){
+              // console.log(err);
+              callback(err);
+            }
+            connection.query('SELECT * FROM userlocation WHERE username = ?', username, function(err, rows, fields){
+              if (err){
+                // console.log(err);
+              } else if (rows){
+                if (err){
+                  // console.log(err);
+                } else {
+                  var locationPush = [inputUserLocationPush, username];
+                connection.query('UPDATE userlocation SET ? WHERE username = ?', locationPush , function(err, rows, fields){
+                  connection.release();
+                })
+              }
+              }
+            })
+          });
+        },
+        function (err){
+          if (err){
+            // console.log(err);
+          }
+            callback(null, inputUserLocationPush);
+          });
+      }
+});
+
+
+
+function query (pool, sql, values) {
+  return new Promise((resolve, reject) => {
+    pool.getConnection((err, connection) => {
+      var query = sql
+      connection.query(query, values, (err, rows) => {
+        connection.release()
+        err ? reject(err) : resolve(rows)
+      })
+    })
+  })
+}
+
+function suggestUsers (pool, username) {
+  return query(pool, 'SELECT sex, orientation, latitude, longitude, city, country FROM usersinfo, userlocation WHERE usersinfo.username = userlocation.username AND usersinfo.username = ?', [username])
+}
+
+
+function lookForSF (pool, username) {
+  return query(pool, 'SELECT usersinfo.username, usersinfo.age, usersinfo.popularity, userlocation.city, userlocation.country, userlocation.latitude, userlocation.longitude FROM usersinfo, userlocation WHERE usersinfo.sex = "f" AND usersinfo.orientation = "s" AND usersinfo.username = userlocation.username AND usersinfo.username != ?', [username])
+}
+
+
+function lookForbothCauseImB (pool, username) {
+  return query(pool, 'SELECT usersinfo.username, usersinfo.age, usersinfo.popularity, userlocation.city, userlocation.country, userlocation.latitude, userlocation.longitude FROM usersinfo, userlocation WHERE (usersinfo.sex =  "f" OR usersinfo.sex =  "m") AND (usersinfo.orientation =  "b" OR usersinfo.orientation =  "s" OR usersinfo.orientation =  "g") AND usersinfo.username = userlocation.username AND usersinfo.username != ?', [username])
+}
+
+
+function lookForSM (pool, username) {
+  return query(pool, 'SELECT usersinfo.username, usersinfo.age, usersinfo.popularity, userlocation.city, userlocation.country, userlocation.latitude, userlocation.longitude FROM usersinfo, userlocation WHERE usersinfo.sex = "m" AND usersinfo.orientation = "s" AND usersinfo.username = userlocation.username AND usersinfo.username != ?', [username])
+}
+
+
+function lookForGM (pool, username) {
+  return query(pool, 'SELECT usersinfo.username, usersinfo.age, usersinfo.popularity, userlocation.city, userlocation.country, userlocation.latitude, userlocation.longitude FROM usersinfo, userlocation WHERE usersinfo.sex = "m" AND usersinfo.orientation = "g" AND usersinfo.username = userlocation.username AND usersinfo.username != ?', [username])
+}
+
+
+function lookforGF (pool, username) {
+  return query(pool, 'SELECT usersinfo.username, usersinfo.age, usersinfo.popularity, userlocation.city, userlocation.country, userlocation.latitude, userlocation.longitude FROM usersinfo, userlocation WHERE usersinfo.sex = "f" AND usersinfo.orientation = "g" AND usersinfo.username = userlocation.username AND usersinfo.username != ?', [username])
+}
+
+
+function checkIfBlocked (pool, username) {
+  return query(pool, 'SELECT blocked FROM blocked WHERE blocker = ?', [username])
+}
+
+
+function matchaSearch (pool, username) {
+  return suggestUsers(pool, username)
+      .then((searcherInfos) => {
+         const userData = [...searcherInfos]
+         if (userData.length === 0){
+           return res.render('/shrug')
+         } else {
+           if (userData[0].sex === 'm' && userData[0].orientation === 's') {
+             return lookForSF(pool, username)
+           } else if ((userData[0].sex) && userData[0].orientation === 'b') {
+             return lookForbothCauseImB(pool, username)
+           } else if ((userData[0].sex) === 'f' && userData[0].orientation === 's') {
+             return lookForSM(pool, username)
+           } else if ((userData[0].sex) === 'm' && userData[0].orientation === 'g') {
+             return lookForGM(pool, username)
+           } else if ((userData[0].sex) === 'f' && userData[0].orientation === 'g') {
+             return lookforGF(pool, username)
+           }
+         }
+      })
+}
+
+router.post('/matchaSearch', function (req, res) {
+  username = session.uniqueID;
+  let blocked = [];
+  checkIfBlocked(pool, username)
+  .then(function(rows){
+
+    if (rows.length > 0){
+      blocked = rows;
+    }
+  })
+
+  matchaSearch(pool, session.uniqueID)
+    .then((potentials) => {
+      userData = suggestUsers(pool, username)
+        .then((rows) => {
+          res.render('./userMatch', {potentials, rows, blocked :blocked})
+        })
+
+    })
+    .catch((err) => {
+      // console.error('error', err)
+      return res.render('./shrug')
+      // res.status(500).send("we don't have any suggestions for you so far")
+    })
+})
+
+
+
+
+
+return router;
+}

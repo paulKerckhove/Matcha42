@@ -1,0 +1,11 @@
+html(id='homepage')
+  head
+    include ./partials/head.pug
+    body
+    link(rel='stylesheet', type='text/css' href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', type='text/css' href='/static/css/styles.css')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+  body
+    div(class='container', id='hello')
+      p= 'Hello ' +  username  + ' welcome to matcha'

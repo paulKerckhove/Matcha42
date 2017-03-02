@@ -1,0 +1,30 @@
+div(class='container')
+  nav(class='navbar navbar-default')
+    div(class='container-fluid')
+      div(class='navbar-header')
+        button(type='button', class='navbar-toggle collapsed', data-toggle='collapse', data-target='#bs-example-navbar-collapse-1', aria-expanded='false')
+          span(class='sr-only')
+          span(class='icon-bar')
+          span(class='icon-bar')
+          span(class='icon-bar')
+      div(class='collapse navbar-collapse', id='bs-example-navbar-collapse-1')
+        ul(class='nav navbar-nav')
+          li(class='active')
+            a(href='/')
+              | Home
+              span(class='sr-only')
+                | (Current)
+          li
+            a(href='/login')
+              | Login
+              span(class='sr-only')
+                | (Current)
+          li
+            a(href='/signup')
+              | Signup
+          li
+            a(href='/resetP')
+              | Reset your password
+          li
+            a(href='/logout')
+              | Logout

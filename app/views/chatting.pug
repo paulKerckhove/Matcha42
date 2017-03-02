@@ -1,0 +1,51 @@
+doctype
+html
+  head
+    include ./partials/head.pug
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    script(src="/socket.io/socket.io.js")
+    script(src='/static/js/jquery.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+
+    script(src='/static/js/bootstrap.min.js')
+    script(src='/static/js/jquery.easing.min.js')
+    script(src='/static/js/scrolling-nav.js')
+    script(src='/static/usersChat.js')
+    script(src="/socket.io/socket.io.js")
+
+    link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', type='text/css', href='/static/css/scrolling-nav.css')
+    link(rel='stylesheet', type='text/css', href='/static/css/styles.css')
+    link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro', rel='stylesheet')
+    body(id='', data-spy='scroll', data-target='.navbar-fixed-top')
+      nav(class='navbar navbar-default navbar-fixed-top', role='navigation')
+        div(class='container')
+          div(class='navbar-header page-scroll')
+            button(type='button', class='navbar-toggle', data-toggle='collapse', data-target='.navbar-ex1-collapse')
+            span(class='sr-only')
+              |Toggle navigation
+              span(class='icon-bar')
+              span(class='icon-bar')
+              span(class='icon-bar')
+
+          a(class='navbar-brand page-scroll', href='http://localhost:3000/profile')
+            |Back to my profile
+          a(class='navbar-brand page-scroll', href='/logout', id='logOutButton')
+            |Logout
+      section(id='profile')
+        div(class='container-notif container')
+          ul(class='notificationContainer', id='userNotifs')
+          ul(id='messages')
+        form(class='chatForm')
+          input(id='m', autocomplete='off', class='chatInput', placeholder='Type your message here..')
+          button(class='chatButton')
+            |Send
+      div(class='')
+        ul(class='chatConvo')
+        script.
+          var socket = io();
+          let username =!{JSON.stringify(username)}
+          let rows =!{JSON.stringify(rows)}

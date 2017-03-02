@@ -1,0 +1,167 @@
+doctype
+html
+	head
+		meta(charset='utf-8')
+		meta(http-equiv='X-UA-Compatible', content='IE=edge')
+		meta(name='viewport', content='width=device-width, initial-scale=1.0')
+		link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+		link(rel='stylesheet', type='text/css', href='/static/css/styles.css')
+		script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js')
+		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+		script(src='/static/carousel.js')
+	body
+		div(class='container fill')
+			div(id='myCarousel', class='carousel slide', data-ride='carousel', data-interval="false", data-wrap="false")
+				div(class='carousel-inner')
+					div(class='item active')
+						div(class='carousel-caption')
+							div(class='form-group')
+								h1 Welcome to matcha !
+								h3 Before matching with partners we need to know each other.
+
+								h1 Tell us about your gender
+								label(for='male')
+									| Are you a male ?
+								input(type="radio", class='.radio-inline', name="sex", value="m", checked=gender=="male")
+
+								label(for='female')
+									| female
+								input(type="radio", class='.radio-inline', name="sex", value="f", checked=gender=="female")
+
+								label(for='undefiend')
+									| undefiend
+								input(type="radio", class=".radio-inline", name="sex", value="u", checked=gender=="undefiend")
+
+								h1 What is your orientation ?
+								label(for='straight')
+									| Straight
+								input(type='radio', name='orientation_filter', value='s', checked=orientation=='straight')
+
+								label(for='gay')
+									| Gay
+								input(type='radio', name='orientation_filter', value='g', checked=orientation=='gay')
+
+								label(for='undefiend')
+									| Bi
+								input(type='radio', name='orientation_filter', value='bi', checked=orientation=='undefiend')
+
+								label(for='undefiend')
+									| Undefiend
+								input(type='radio', name='orientation_filter', value='u', checked=orientation=='undefiend')
+
+								h1 How old are you ?
+								input(type='number', name='age', value='', id='ageinput')
+						div(id='firstdiv', class='fill', style='background-image:url("static/img/meet.jpg");')
+							div(class='container')
+					div(class='item')
+						div(class='carousel-caption')
+							h1
+								| Tell us more about yourself
+							h2
+								| Pick any interest you like
+							label(for='shopping')
+								| Shopping
+							input(type='checkbox', name='interest_filter', value='shopping', checked=interest=='shopping')
+
+							div
+							label(for='travelling')
+								| Travelling
+							input(type='checkbox', name='interest_filter', value='travelling', checked=interest=='travelling')
+
+							div
+							label(for='music')
+								| Music
+							input(type='checkbox', name='interest_filter', value='music', checked=interest=='musique')
+
+							div
+							label(for='cooking')
+								| Cooking
+							input(type='checkbox', name='interest_filter', value='cooking', checked=interest=='cooking')
+
+							div
+							label(for='nature')
+								| Nature
+							input(type='checkbox', name='interest_filter', value='nature', checked=interest=='nature')
+
+							div
+							label(for='arts')
+								| Arts
+							input(type='checkbox', name='interest_filter', value='arts', checked=interest=='arts')
+
+						div(class='fill', style='background-image:url("static/img/book.jpg");')
+							div(class='container')
+					div(class='item')
+						div(class='carousel-caption')
+							h1
+								| Tell us more about yourself
+							h2
+								| Do you like to workout ?
+							div
+							label(for='basketball')
+								| basketball
+							input(type='checkbox', name='sport_filter', value='1', checked=sport=='basketball')
+							div
+							label(for='natation')
+								| natation
+
+							input(type='checkbox', name='sport_filter', value='2', checked=sport=='natation')
+							div
+							label(for='running')
+								| running
+
+							input(type='checkbox', name='sport_filter', value='3', checked=sport=='runing')
+							div
+							label(for='tennis')
+								| tennis
+
+							input(type='checkbox', name='sport_filter', value='4', checked=sport=='tennis')
+							div
+							label(for='football')
+								| football
+							input(type='checkbox', name='sport_filter', value='5', checked=sport=='football')
+
+						div(class='fill', style='background-image:url("static/img/running2.jpg");')
+							div(class='container')
+					div(class='item')
+						div(class='carousel-caption')
+							h1
+								| Tell us more about yourself
+							h2
+								| Do you like movies ?
+							div
+							label(for='comedy')
+								| Comedy
+							input(type='checkbox', name='movie_filter', value='1', checked=movie=='comedy')
+							div
+							label(for='action')
+								| Action
+
+							input(type='checkbox', name='movie_filter', value='2', checked=movie=='action')
+							div
+							label(for='adventure')
+								| Adventure
+
+							input(type='checkbox', name='movie_filter', value='3', checked=movie=='adventure')
+							div
+							label(for='sci-fi')
+								| Sci-fi
+
+							input(type='checkbox', name='movie_filter', value='4', checked=movie=='sci-fi')
+							div
+							label(for='romantic')
+								| Romantic
+
+								input(type='checkbox', name='movie_filter', value='5', checked=movie=='romantic')
+						div(class='fill', style='background-image:url("static/img/cinema.jpg");')
+
+					div(class='item')
+						div(class='carousel-caption')
+							h1 It's all good !
+							h3 If you want to add things to you profil you will be able to add tags later
+							button(type='button', id='matchme', class='btn btn-primary btn-lg')
+								| Match me !
+						div(class='fill', style='background-image:url("static/img/couple.jpg");')
+				a(class='carousel-control left', href='#myCarousel', data-slide='prev')
+					span(class='glyphicon glyphicon-chevron-left')
+				a(class='carousel-control right', href='#myCarousel', data-slide='next')
+					span(class='glyphicon glyphicon-chevron-right')

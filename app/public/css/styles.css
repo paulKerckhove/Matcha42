@@ -1,0 +1,396 @@
+#landingpage {
+  background-color: #4486d4;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+#signuppage {
+background-color: #4486d4;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+
+#loginpage {
+background-color: #4486d4;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
+#homepage {
+  background: url('/static/img/sunset.png') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+}
+
+#body_login {
+  height: 0%;
+}
+
+body{
+ background-color: transparent;
+ font-family: 'Source Sans Pro', sans-serif;
+ color: #22313F;
+}
+
+.footerClass {
+  padding: 1px, padding: 1px, padding:0 !important;
+  background-color: #ecf0f1;
+}
+
+
+/*.logOutButtonMatchPage {
+  float: right;
+}*/
+
+/*
+#target {
+    background:url("file:///Users/pkerckho/Desktop/trolltunga.jpg");
+    width:200px;
+    height:200px;
+    display:block;
+}*/
+
+
+#dataUserPictures {
+  width: 10px;
+  height: 10px;
+}
+
+#formInput {
+  border: 0;
+  padding: 10px;
+  width: 90%;
+  margin-right: .5%;
+}
+
+#formButton {
+  width: 9%;
+  background: rgb(130, 224, 255);
+  border: none;
+  padding: 10px;
+}
+
+#formBody {
+  background: #000;
+  padding: 3px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
+#geoUser {
+  border-radius: 4px;
+  background-color: white;
+  font-size: 15px;
+  border: 1px;
+
+}
+
+#noGeoUser {
+  border-radius: 4px;
+  background-color: white;
+  font-size: 15px;
+  border: 1px;
+
+}
+
+#city {
+  border-radius: 4px;
+  background-color: white;
+  font-size: 15px;
+  border: 1px;
+}
+
+#search{
+  border-radius: 4px;
+  background-color: white;
+  font-size: 15px;
+  border: 1px;
+}
+
+#changeMyInfos {
+  border-radius: 8px;
+  /*background-color: transparent;*/
+  font-size: 15px;
+}
+
+.WeneedLoc {
+  font-size: 20px;
+}
+
+.matchMe {
+  display: inline-block;
+  text-align: center;
+  font-size: 50px;
+  border-radius: 12px;
+  font-weight: bold;
+  background-color: transparent;
+  border: 1px;
+  box-shadow: none;
+  padding-top: 40px;
+
+}
+
+.matchMe:hover {
+  opacity: 5;
+  right: 0;
+  font-size: 80px;
+  background-color: transparent;
+}
+
+.matchMeClass {
+  margin-top: 400px;
+}
+
+#tellUs {
+  font-size: 18px;
+  color: #BFBFBF;
+}
+
+.ageInput {
+  color: black;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 15px;
+  border: 1px;
+}
+
+#userBio {
+  font-size: 18px;
+  color: #BFBFBF;
+}
+
+#uploadPic{
+  font-size: 18px;
+  color: #BFBFBF;
+}
+
+#pictureFormUpload{
+  border-radius: 4px;
+  font-family: 'Source Sans Pro', sans-serif;
+  border: 1px solid;
+  background-color: transparent;
+}
+
+/*#logOutButton{
+  position: absolute;
+  right: 100px;
+}*/
+
+
+
+
+#usernameInput{
+  color: black;
+}
+
+#firstNameInput {
+  color: black;
+}
+
+#lastNameInput {
+  color: black;
+}
+
+#userEmailInput {
+  color: black;
+}
+
+
+#intro {
+background-color: #4486d4;
+  background-size: cover;
+  /*border-radius: 25px;*/
+}
+
+#you {
+background-color: #16a085;
+  background-size: cover;
+  /*border-radius: 25px;*/
+}
+
+#bio {
+  background-color: #d65656;
+  background-size: cover;
+  /*border-radius: 25px;*/
+}
+
+
+#photos {
+  background-color: #4486d4;
+  background-size: cover;
+
+  /*border-radius: 25px;*/
+}
+
+#tags {
+background-color: #16a085;
+  background-size: cover;
+  /*border-radius: 25px;*/
+}
+
+#matcha {
+  border-radius: 4px;
+  font-family: 'Source Sans Pro', sans-serif;
+  background-color: transparent;
+  font-size: 18px;
+  color: #22313F;
+}
+
+
+
+/* Chat */
+
+.chatForm {
+  background: #bdc3c7;
+  padding: 8px;
+  position: fixed;
+  bottom: 100;
+  width: 70%;
+  margin-left: 80px;
+  border-radius: 4px;
+
+}
+
+.chatInput {
+  border: 0;
+  padding: 10px;
+  width: 90%;
+  margin-right: .5%;
+  border-radius: 4px;
+  font-family: 'Source Sans Pro', sans-serif;
+
+}
+
+.chatButton {
+  width: 9%;
+  background: #3498db;
+  border: none;
+  padding: 12px;
+  border-radius: 4px;
+}
+
+.container-notif{
+  margin-top: 91px;
+}
+
+.chatForm{
+  position:absolute;
+  bottom:0;
+  left:0;
+}
+
+.chatConvo {
+  list-style-type: none;
+  border : 8px solid #bdc3c7;
+}
+
+
+/*.notificationContainer {
+  border: 1px solid;
+  padding-left: 0;
+  box-sizing: border-box;
+
+}*/
+
+.userNotifs {
+  padding: 10px;
+
+}
+
+.full-circle-notif-count {
+    background-color: red;
+    height:20px;
+    width:20px;
+    -webkit-border-radius:75px;
+    -moz-border-radius:75px;
+    margin-top : -33px;
+    margin-left: 75px;
+}
+
+
+a {
+    color: #ECECEC;
+}
+
+.logout_link {
+  color: red;
+  padding-left: 25px;
+}
+.profile_page_link{
+  color: red;
+  padding-left: 25px;
+}
+
+.notif_link {
+  color: red;
+  padding-left: 25px;
+}
+/*#searchBox {
+  width: 250px;
+  height: 150px;
+  border: 4px solid #95a5a6;
+  font-size: 15px;
+}*/
+
+
+
+
+/* Carousel thing
+
+/*
+.container{
+ background-color: transparent;
+}
+
+.navbar{
+ background-color: transparent;
+}
+
+
+
+html,body{height:100%;}
+.carousel,.item,.active{height:100%;}
+.carousel-inner{height:100%;}
+.fill{width:100%;height:100%;background-position:center;background-size:cover;}
+
+/* faster sliding speed */
+/*
+.carousel-inner > .item {
+    -webkit-transition: 0.3s ease-in-out left;
+    -moz-transition: 0.3s ease-in-out left;
+    -o-transition: 0.3s ease-in-out left;
+    transition: 0.3s ease-in-out left;
+}
+
+/* keep full widget on smaller screens */
+/*
+@media (max-width: 767px) {
+	body {
+		padding-left: 0;
+		padding-right: 0;
+	}
+}
+
+#ageinput {
+  color:grey;
+}
+
+#matchme {
+  font-size: 40px;
+}
+#round {
+  margin-left: 7px;
+}
+#welcome {
+  font-size: 100px;
+}*/

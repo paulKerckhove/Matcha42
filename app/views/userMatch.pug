@@ -1,0 +1,391 @@
+doctype
+html
+  head
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible', content='IE=edge')
+    meta(name='viewport', content='width=device-width, initial-scale=1.0')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js')
+    script(src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.12/jquery-ui.min.js')
+    script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
+    script(src='https://cdnjs.cloudflare.com/ajax/libs/geolocator/2.1.0/geolocator.js')
+    script(src='/static/js/jquery.js')
+    script(src='/static/js/bootstrap.min.js')
+    script(src='/static/js/searchResults.js')
+    script(src='/static/filters.js')
+    script(src="/socket.io/socket.io.js")
+
+    link(rel='stylesheet', type='text/css', href='/static/css/styles.css')
+    link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
+    link(rel='stylesheet', type='text/css', href='/static/css/scrolling-nav.css')
+    link(rel='stylesheet', type='text/css', href='/static/css/userMatch.css')
+    script.
+
+      var socket = io();
+      var potentials =!{JSON.stringify(potentials)}
+      var rows =!{JSON.stringify(rows)}
+      var blocked =!{JSON.stringify(blocked)}
+      var username =!{JSON.stringify(username)}
+
+      var found_age = [];
+      var found_pop = [];
+      var found_dist = [];
+      var result
+
+      $(document).ready(function() {
+
+
+        $('#distanceSort').hide()
+        $('#ageSort').hide()
+        $('#popSort').hide()
+        socket.emit('init', username);
+        $('.full-circle-notif-count').hide();
+        socket.on('notification', function(){
+          //console.log('view from');
+          /*view_notification = true;*/
+          $('.full-circle-notif-count').toggle();
+          })
+        socket.on('like', function(){
+          //console.log('like from',userUrl);
+          $('.full-circle-notif-count').toggle();
+          })
+        socket.on('unlike', function(){
+          //console.log('unlike from',userUrl);
+          $('.full-circle-notif-count').toggle();
+          })
+        socket.on('message', function(msg){
+          //console.log(msg.curr);
+          //chatAppend(msg.msg, msg.curr);
+          $('.full-circle-notif-count').toggle();
+          })
+          potentials = filterBlocked(potentials, blocked);
+         function filterBlocked(potentials, blocked){
+           for( var i = potentials.length - 1; i >= 0; i--){
+             for( var j = 0; j < blocked.length; j++){
+               if(potentials[i] && (potentials[i].username === blocked[j].blocked)){
+                 potentials.splice(i, 1);
+               }
+             }
+          }
+          return potentials
+         }
+
+         potentials = potentials.filter(v => v.username );
+           document.getElementById('suggestedUsers').innerHTML = potentials.map((user) => {
+               return `
+               <li><a href='http://localhost:3000/users/${user.username}'</a> ${user.username} </li>
+               `;
+           }).join('');
+
+            /* function */
+
+           function sortDistance(rows, array){
+             array.forEach(elem => {
+               var result = geolocator.calcDistance({
+                 from: {
+                     latitude: rows[0].latitude,
+                     longitude: rows[0].longitude
+                 },
+                 to: {
+                   latitude: elem.latitude,
+                   longitude: elem.longitude
+                 },
+                 formula: geolocator.DistanceFormula.HAVERSINE,
+                 unitSystem: geolocator.UnitSystem.METRIC
+                 });
+                 elem.distance = Math.round(result)
+               })
+               return array
+             }
+
+        $("#age-slider").change(function(){
+
+
+          $('#ageSort').show()
+          $('#distanceSort').show()
+          $('#popSort').show()
+
+          var slider = document.querySelector('#age-slider')
+          var sliderInputs = slider.querySelectorAll('input[type=range]')
+          /*console.log(sliderInputs[0].value);
+          console.log(sliderInputs[1].value);*/
+
+          found_age = potentials.filter(v => v.age >= sliderInputs[0].value && v.age <= sliderInputs[1].value);
+            document.getElementById('array-Filter').innerHTML = found_age.map((user) => {
+                return `
+                <li><a href='http://localhost:3000/users/${user.username}'</a> ${user.username}  ${user.age} years old from ${user.city}</li>
+                `;
+            }).join('');
+
+
+              /* Three filters on sort result */
+
+
+            $("#ageSort").click(function(){
+              $('#array-Filter').hide()
+             finale = found_age.sort(function(a, b){
+                return parseFloat(a.age) - parseFloat(b.age);
+                })
+                document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                  return `
+                  <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username}  ${user.age} years old </li>
+                  `;
+                  }).join('');
+                  $('#array-Filter').show()
+
+              })
+
+                /* New filter for pop score after age sort*/
+
+
+              $("#popSort").click(function(){
+                $('#array-Filter').hide()
+               finale = found_age.sort(function(a, b){
+                  return parseFloat(a.popularity) - parseFloat(b.popularity);
+                  })
+                  document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                    return `
+                    <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username} ${user.popularity} </li>
+                    `;
+                    }).join('');
+                    $('#array-Filter').show()
+                })
+
+                /*New filter for distance sort after all*/
+
+
+                $("#distanceSort").click(function(){
+                  $('#array-Filter').hide()
+                 finale = found_age.sort(function(a, b){
+                    return parseFloat(a.distance) - parseFloat(b.distance);
+                    })
+                    document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                      return `
+                      <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username} </li>
+                      `;
+                      }).join('');
+                      $('#array-Filter').show()
+                      sortDistance(rows, finale)
+                  })
+
+        })
+
+
+
+
+        $("#pop-slider").change(function(){
+          $('#popSort').show()
+          $('#distanceSort').show()
+          $('#ageSort').show()
+
+
+          var slider = document.querySelector('#pop-slider')
+          var sliderInputs = slider.querySelectorAll('input[type=range]')
+
+
+          found_pop = potentials.filter(v => v.popularity >= sliderInputs[0].value && v.popularity <= sliderInputs[1].value);
+            document.getElementById('array-Filter').innerHTML = found_pop.map((user) => {
+              return `
+              <li> <a href='http://localhost:3000/users/${user.username}'</a> ${user.username} ${user.popularity}</li>
+              `;
+              }).join('');
+
+              $("#popSort").click(function(){
+                $('#array-Filter').hide()
+               finale = potentials.sort(function(a, b){
+                  return parseFloat(a.popularity) - parseFloat(b.popularity);
+                  })
+                  document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                    return `
+                    <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username} ${user.popularity} </li>
+                    `;
+                    }).join('');
+                    $('#array-Filter').show()
+                })
+
+
+                $("#distanceSort").click(function(){
+                  $('#array-Filter').show()
+                 finale = potentials.sort(function(a, b){
+                    return parseFloat(a.distance) - parseFloat(b.distance);
+                    })
+                    document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                      return `
+                      <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username} </li>
+                      `;
+                      }).join('');
+                      $('#array-Filter').show()
+
+                  })
+
+
+
+
+                  $("#ageSort").click(function(){
+                    $('#array-Filter').show()
+                   finale = potentials.sort(function(a, b){
+                      return parseFloat(a.age) - parseFloat(b.age);
+                      })
+                      document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                        return `
+                        <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username}  ${user.age} years old </li>
+                        `;
+                        }).join('');
+                        $('#array-Filter').show()
+
+                    })
+
+        })
+
+
+        $("#km-slider").change(function(){
+          $('#distanceSort').show()
+          $('#ageSort').show()
+          $('#popSort').show()
+          var finale =  [];
+          var slider = document.querySelector('#km-slider')
+          var sliderInputs = slider.querySelectorAll('input[type=range]')
+
+          sortDistance(rows, potentials)
+
+
+          function sortDistance(rows, potentials){
+            potentials.forEach(elem => {
+              var result = geolocator.calcDistance({
+                from: {
+                    latitude: rows[0].latitude,
+                    longitude: rows[0].longitude
+                },
+                to: {
+                  latitude: elem.latitude,
+                  longitude: elem.longitude
+                },
+                formula: geolocator.DistanceFormula.HAVERSINE,
+                unitSystem: geolocator.UnitSystem.METRIC
+                });
+                elem.distance = Math.round(result)
+              })
+            }
+
+            filterDistance(potentials)
+
+                function filterDistance(potentials) {
+                  found_dist = potentials.filter(v => {
+                      return v.distance <= sliderInputs[1].value
+                    });
+                    document.getElementById('array-Filter').innerHTML = found_dist.map((user) => {
+                      return `
+                      <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username} at ${user.distance}km </li>
+                      `;
+                      }).join('');
+                }
+
+                $("#distanceSort").click(function(){
+                  $('#array-Filter').show()
+                 finale = potentials.sort(function(a, b){
+                    return parseFloat(a.distance) - parseFloat(b.distance);
+                    })
+                    document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                      return `
+                      <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username} at ${user.distance}km </li>
+                      `;
+                      }).join('');
+                      $('#array-Filter').show()
+
+                  })
+
+
+
+
+                  $("#ageSort").click(function(){
+                    $('#array-Filter').show()
+                   finale = potentials.sort(function(a, b){
+                      return parseFloat(a.age) - parseFloat(b.age);
+                      })
+                      document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                        return `
+                        <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username}  ${user.age} years old </li>
+                        `;
+                        }).join('');
+                        $('#array-Filter').show()
+
+                    })
+
+
+
+                    $("#popSort").click(function(){
+                      $('#array-Filter').show()
+                     finale = potentials.sort(function(a, b){
+                        return parseFloat(a.popularity) - parseFloat(b.popularity);
+                        })
+                        document.getElementById('array-Filter').innerHTML = finale.map((user) => {
+                          return `
+                          <li> <a href='http://localhost:3000/users/${user.username}'</a>  ${user.username} ${user.popularity} </li>
+                          `;
+                          }).join('');
+                          $('#array-Filter').show()
+                      })
+        })
+
+      })
+
+  body(id='page-top', data-spy='scroll', data-target='.navbar-fixed-top')
+    nav(class='navbar navbar-default navbar-fixed-top', role='navigation')
+      div(class='container')
+        div(class='navbar-header page-scroll')
+          button(type='button', class='navbar-toggle', data-toggle='collapse', data-target='.navbar-ex1-collapse')
+            span(class='sr-only')
+              |Toggle navigation
+            span(class='icon-bar')
+            span(class='icon-bar')
+            span(class='icon-bar')
+          a(class='navbar-brand page-scroll', href='http://localhost:3000/profile')
+            |You
+          a(class='navbar-brand page-scroll', href='http://localhost:3000/notif')
+            |Notifications
+            p(class="full-circle-notif-count")
+          a(class='navbar-brand page-scroll', href='/logout', id='logOutButton')
+            |Logout
+
+    section(id='Suggestions', class='intro-section')
+      div(class='container')
+        div(class='row')
+          div(class='col-lg-12')
+            div(id='', class='')
+              div(class='row')
+                div(class='col-lg-12', id='searchBox')
+                  |SEARCH PROFILES
+                  section(class='range-slider', id="age-slider")
+                    |Select age range&nbsp
+                    span(class='rangeValues')
+                    input(value='18', min='18', max='', step='1', type='range')
+                    input(value='18', min='18', max='', step='1', type='range')
+
+
+                  section(class='range-slider', id="km-slider")
+                    |Select by range (in km)&nbsp
+                    span(class='rangeValues')
+                    input(value='0', min='0', max='1', step='1', type='range')
+                    input(value='1', min='0', max='900', step='1', type='range')
+
+                  section(class='range-slider', id="pop-slider")
+                    |Select by score range&nbsp
+                    span(class='rangeValues')
+                    input(value='0', min='0', max='100', step='1', type='range')
+                    input(value='0', min='0', max='500  ', step='1', type='range')
+
+            h1
+              |Here are your suggestions
+              div(id='suggestedUsers')
+          button(type="button" class="btn btn-secondary", id='distanceSort')
+            |Sort by distance(closest to farthest)
+          button(type="button" class="btn btn-secondary", id='ageSort')
+            |Sort by age(youngest to oldest)
+          button(type="button" class="btn btn-secondary", id='popSort')
+            |Sort by popularity(lowest to highest)
+
+
+
+
+      ul
+        span#array-Filter
