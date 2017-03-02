@@ -573,6 +573,7 @@ function checkforTags (pool, username) {
   return query(pool, 'SELECT tags.tags FROM tags INNER JOIN user_tags ON user_tags.tag_id = tags.id WHERE user_tags.username = ?', [username])
 }
 
+
 function insertTagsInDb (pool, tags) {
   return query(pool, 'INSERT INTO TAGS VALUES ?', [tags])
 }
@@ -581,6 +582,22 @@ function insertTagsInDb (pool, tags) {
 function getTheUserTags (pool, tags) {
   return query(pool, 'SELECT * FROM tags WHERE tags = ?' [tags])
 }
+
+
+function getLocation (pool, username) {
+  return query(pool, 'SELECT * FROM userlocation WHERE username = ?', [username])
+}
+
+
+function insertLocationSearch (pool, username, latitude, longitude, country, city) {
+  return query(pool, 'INSERT INTO userlocation (username, latitude, longitude, country, city) VALUES (?, ?, ?, ?, ?)', [[username],[latitude], [longitude], [country], [city]])
+}
+
+
+function getRidofTheRows (pool, username) {
+  return query(pool, 'DELETE FROM userlocation WHERE username = ? ', [username])
+}
+
 
 // function insertTagsInDb2 ()
 
@@ -685,98 +702,148 @@ router.post('/userLocationSearch', function (req, res){
     if (!val.validate()) {
         return res.redirect('/profile')
     }
-  username = session.uniqueID;
-  var latitude;
-  var longitude;
-  var country;
-  var city;
-  var zipcode;
-  var usearLocationSearch;
-  var inputUserLocationPush = {};
-  var userZips = {};
-  var search = req.body.search;
-  locationCheck(search, function(err, callback){
-    if (err == "error wrong input"){
-      res.send({error:  "city does not exist"});
-    } else if  (err){
-      res.send({error: "pb with geocoder"});
-    } else {
-      userLocationChoice(username, callback, function (err, callback){
-        if (err){
-          res.send({error: "pb geocoder 2"});
+  let username = session.uniqueID;
+  let search = req.body.search;
+  let locationGranted = false
+  geocoder.geocode(search)
+  .then(function(searcRes) {
+    let latitude = searcRes[0].latitude;
+    let longitude = searcRes[0].longitude;
+    let city = searcRes[0].city;
+    let country = searcRes[0].country
+    // console.log(searcRes[0].latitude);
+    // console.log(searcRes[0].longitude);
+    // console.log(searcRes[0].city);
+    // console.log(searcRes[0].country);
+    // console.log(searcRes[0].zipcode);
+    // console.log(searcRes);
+    searcRes.forEach(elem =>{
+      if (typeof elem.city === 'undefined'){
+        locationGranted = false
+
+      } else if (typeof elem.city == 'string'){
+        locationGranted = true
+      }
+    })
+    if (locationGranted == false){
+      var response = {
+        status  : 400,
+        success : 'Wrong input'
+      }
+      return res.status(200).send(JSON.stringify(response));
+    } else if (locationGranted == true) {
+      getLocation (pool, username)
+      .then(function(rows){
+        if (rows.length > 0) {
+          getRidofTheRows(pool, username)
+          insertLocationSearch(pool, username, latitude, longitude, country, city)
+          console.log("location has been inserted");
         } else {
-          res.redirect('/profile');
-           }
-         })
-    }
-  });
-function locationCheck(search, callback){
-  geocoder.geocode(search, function(err, res) {
-    if (err) {
-      callback(err);
-    } else if (res[0] == undefined){
-       callback("error wrong input");
-       return res.status(201).send('test');
-    } else {
-    userLocationSearch = res;
-    latitude = userLocationSearch[0].latitude;
-    longitude = userLocationSearch[0].longitude;
-    country = userLocationSearch[0].country;
-    city = userLocationSearch[0].city;
-    geocoder.reverse({lat:latitude, lon:longitude}, function(err, res) {
-      if(err){
-        callback(err);
+          insertLocationSearch(pool, username, latitude, longitude, country, city)
+          console.log("location has been inserted");
+        }
+      })
+      var response = {
+        status  : 200,
+        success : 'Location has been updated'
       }
-      userZips = res;
-      latitude = userZips[0].latitude;
-      longitude = userZips[0].longitude;
-      country = userZips[0].country;
-      city = userZips[0].city;
-      zipcode = res[0].zipcode;
-    inputUserLocationPush = {
-      username,
-      latitude,
-      longitude,
-      country,
-      city,
-      zipcode
-    };
-    callback(null, inputUserLocationPush);
-      });
+      return res.status(200).send(JSON.stringify(response));
     }
+  })
+  .catch(function(err) {
+    console.log(err);
   });
-}
-  function userLocationChoice(username, inputUserLocationPush, callback){
-        async.each(inputUserLocationPush, function (userZips, callback){
-          pool.getConnection(function (err, connection){
-            if (err){
-              // console.log(err);
-              callback(err);
-            }
-            connection.query('SELECT * FROM userlocation WHERE username = ?', username, function(err, rows, fields){
-              if (err){
-                // console.log(err);
-              } else if (rows){
-                if (err){
-                  // console.log(err);
-                } else {
-                  var locationPush = [inputUserLocationPush, username];
-                connection.query('UPDATE userlocation SET ? WHERE username = ?', locationPush , function(err, rows, fields){
-                  connection.release();
-                })
-              }
-              }
-            })
-          });
-        },
-        function (err){
-          if (err){
-            // console.log(err);
-          }
-            callback(null, inputUserLocationPush);
-          });
-      }
 });
+
+
+
+
+
+
+
+
+//   locationCheck(search, function(err, callback){
+//     if (err == "error wrong input"){
+//       res.send({error:  "city does not exist"});
+//     } else if  (err){
+//       res.send({error: "pb with geocoder"});
+//     } else {
+//       userLocationChoice(username, callback, function (err, callback){
+//         if (err){
+//           res.send({error: "pb geocoder 2"});
+//         } else {
+//           res.redirect('/profile');
+//            }
+//          })
+//     }
+//   });
+// function locationCheck(search, callback){
+//   geocoder.geocode(search, function(err, res) {
+//     if (err) {
+//       callback(err);
+//     } else if (res[0] == undefined){
+//        callback("error wrong input");
+//        return res.status(201).send('test');
+//     } else {
+//     userLocationSearch = res;
+//     latitude = userLocationSearch[0].latitude;
+//     longitude = userLocationSearch[0].longitude;
+//     country = userLocationSearch[0].country;
+//     city = userLocationSearch[0].city;
+//     geocoder.reverse({lat:latitude, lon:longitude}, function(err, res) {
+//       if(err){
+//         callback(err);
+//       }
+//       userZips = res;
+//       latitude = userZips[0].latitude;
+//       longitude = userZips[0].longitude;
+//       country = userZips[0].country;
+//       city = userZips[0].city;
+//       zipcode = res[0].zipcode;
+//     inputUserLocationPush = {
+//       username,
+//       latitude,
+//       longitude,
+//       country,
+//       city,
+//       zipcode
+//     };
+//     callback(null, inputUserLocationPush);
+//       });
+//     }
+//   });
+// }
+//   function userLocationChoice(username, inputUserLocationPush, callback){
+//         async.each(inputUserLocationPush, function (userZips, callback){
+//           pool.getConnection(function (err, connection){
+//             if (err){
+//               // console.log(err);
+//               callback(err);
+//             }
+//             connection.query('SELECT * FROM userlocation WHERE username = ?', username, function(err, rows, fields){
+//               if (err){
+//                 // console.log(err);
+//               } else if (rows){
+//                 if (err){
+//                   // console.log(err);
+//                 } else {
+//                   var locationPush = [inputUserLocationPush, username];
+//                 connection.query('UPDATE userlocation SET ? WHERE username = ?', locationPush , function(err, rows, fields){
+//                   connection.release();
+//                 })
+//               }
+//               }
+//             })
+//           });
+//         },
+//         function (err){
+//           if (err){
+//             // console.log(err);
+//           }
+//             callback(null, inputUserLocationPush);
+//           });
+//       }
+
 
 
 

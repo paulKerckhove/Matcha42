@@ -230,15 +230,17 @@ $('#city').click(function(){
            cache: false,
            data: data,
            dataType: 'json',
-           success: function(data){
-              console.log("post success");
-            },
-            error: function(data){
-              alert("please enter a valid location");
-            }
+           success: function (response) {
+             if(response.status == 200){
+               alert("Location has been updated");
+               $('#search').val("");
+             } else if (response.status == 400){
+               $('#search').val("");
+               alert("Wrong input");
+             }
+           }
           });
-
-  });
+        });
 
 
 $('#matchMe').click(function(){

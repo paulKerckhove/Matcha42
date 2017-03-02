@@ -45,8 +45,9 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(sessions({
     secret: process.env.SESSION_SECRET || "secret",
-    resave: false,
-    saveUninitialized: false
+    proxy: true,
+    resave: true,
+    saveUninitialized: true
     }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.set('port', process.env.PORT || 3000);
@@ -138,7 +139,7 @@ app.get('/signup', function(req, res) {
   if(session.uniqueID) {
     return res.redirect('/redirect');
   } else {
-    return res.render('signup.pug');    
+    return res.render('signup.pug');
   }
 
 });
