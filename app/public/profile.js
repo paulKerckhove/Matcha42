@@ -46,29 +46,6 @@ $(document).ready(function() {
                 alert("post success")
               },
               error: function(data) {
-                //window.location.href = '/profile'
-              }
-            });
-          });
-
-  $("#changeGenderBio").click(function() {
-    event.preventDefault();
-    var data = {};
-    data.sex = $('[name=sex]:checked').val();
-    data.orientation_filter = $('[name=orientation_filter]:checked').val();
-    data.age = $('[name=age]').val();
-    data.bioBox = $('#commentBox').val();
-
-    $.ajax({
-             url: '/profile/changeGenderBio',
-             type: 'POST',
-             cache: false,
-             data: data,
-             dataType: 'json',
-             success: function(data){
-                alert("post success")
-              },
-              error: function(data) {
                 window.location.href = '/profile'
               }
             });
@@ -278,19 +255,4 @@ $('#ageSubmit').click(function(){
 
   });
 
-
-
-
-
-
 });
-
-
-
-
-/*
-ageSubmit
-tagsSubmit
-locationSubmit
-popScoreSubmit
-*/

@@ -45,8 +45,6 @@ html
             |My location
           a(class='navbar-brand page-scroll', href='#you')
             |You
-          a(class='navbar-brand page-scroll', href='#bio')
-            |Bio
           a(class='navbar-brand page-scroll', href='#photos')
             |My photos
           a(class='navbar-brand page-scroll', href='#tags')
@@ -149,24 +147,16 @@ html
               h3 email
               if userinfo.email != null
                 input(type='textarea', name='userEmail', id='userEmailInput', value=userinfo.email)
-
-
-
-    section(id='bio', class='about-section')
-      div(class='container', id='userBio')
-        div(class='row')
-          div(class='col-lg-12')
-            h3
-              |Submit infos
-          div(class='form-group')
-            if userinfo.bio != null
-              textarea(class='form-control', row='5', name='bioBox', id='commentBox')= userinfo.bio
-            else
-              textarea(class='form-control', row='5', name='bioBox', id='commentBox')
-            button(type='submit', class='btn btn-default', id='updateBio')
-              |Submit my bio
-            button(type='submit', class='btn btn-default', id='changeGenderBio', action='/changeGenderBio')
-              |change
+              p
+                h1
+                  |Submit infos
+                  div(class='form-group')
+                    if userinfo.bio != null
+                      textarea(class='form-control', row='5', name='bioBox', id='commentBox')= userinfo.bio
+                    else
+                      textarea(class='form-control', row='5', name='bioBox', id='commentBox')
+                        button(type='submit', class='btn btn-default', id='updateBio')
+                          |Submit my bio
 
 
     section(id='photos', class='services-section')
@@ -207,7 +197,7 @@ html
             button(type='submit', class='btn btn-default', id='saveTags', action='/tagsPost')
               |Save my tags
             button(type='submit', class='btn btn-default', id='changeTags', action='/changeTags')
-              |change
+              |Delete my tags
 
       div(id='matcha', class='matchMeClass')
         label(class='control-label')

@@ -18,7 +18,60 @@ var Validator = require('./methods.js');
 module.exports = function(io){
 
 
+// router.get('/', function (req, res){
+//   let username = session.uniqueID;
+//   let userInfosForPug;
+//   let dataUserTagsLoop;
+//   let count = 0;
+//   let Ustags;
+//   let taglen;
+//   let piclen;
+//   let countPic = 0;
+//   let dataUserPictures = [];
+//   let blocked = [];
+//   checkIfBlocked(pool, username)
+//   .then(function(rows){
+//     if (rows.length > 0){
+//       blocked = rows;
+//     }
+//   })
+//   getUserprofile (pool, username)
+//   .then(function(rows){
+//     if (rows.length > 0){
+//       userInfosForPug = rows
+//     }
+//   })
+//   checkforTags (pool, username)
+//   .then(function(rows){
+//     if (rows.length > 0){
+//       dataUserTags = rows;
+//     }
+//   })
+//   getUserPicture (pool, username)
+//   .then(function(rows){
+//     if (rows.length > 0){
+//       dataUserPictures = rows;
+//     }
+//   })
+//   return res.render('./profile.pug', {userinfo: userInfosForPug, tags: dataUserTags, dataUserPictures: dataUserPictures, blocked :blocked});
+//
+//
+// })
 
+
+function getUserPicture (pool, username) {
+  return query(pool, 'SELECT * FROM photos WHERE username = ?')
+}
+
+
+function getUserprofile (pool, username) {
+  return query(pool, 'SELECT * FROM usersinfo WHERE username = ?', [username])
+}
+
+
+function checkforTags (pool, username) {
+  return query(pool, 'SELECT tags.tags FROM tags INNER JOIN user_tags ON user_tags.tag_id = tags.id WHERE user_tags.username = ?', [username])
+}
 
 
 router.get('/', function (req, res) {
@@ -35,11 +88,8 @@ router.get('/', function (req, res) {
   let blocked = [];
   checkIfBlocked(pool, username)
   .then(function(rows){
-
     if (rows.length > 0){
       blocked = rows;
-    } else {
-
     }
   })
   fun.getUserprofile(username, function (err, callback) {
@@ -196,6 +246,19 @@ router.post('/profile', function (req, res) {
   })
 });
 
+// router.post('/tagsPost', function(req, res){
+//   let username = session.uniqueID;
+//   let tags = req.body['userTags[]'];
+//   console.log(tags);
+//   checkforTags(pool, username)
+//   .then(function(rows){
+//     if (rows.length > 0){
+//
+//     }
+//   })
+//
+// })
+//
 
 
 router.post('/tagsPost', function(req, res) {
@@ -295,7 +358,6 @@ router.post('/tagsPost', function(req, res) {
 
 
 
-
 router.post('/userPhoto', function(req, res) {
   checkForNumberOfPics(pool, username)
   .then(function(rows){
@@ -374,95 +436,6 @@ router.post('/userPhoto', function(req, res) {
         });
     }
   })
-});
-
-
-router.post('/changeGenderBio', function (req, res) {
-
-  val = new Validator({
-        dataSource: req.body,
-        constraints: [{
-                name: 'firstname',
-                min: 3,
-                regex: /^[a-zA-Z]*$/
-            },
-            {
-                name: 'lastname',
-                min: 3,
-                regex: /^[a-zA-Z]*$/
-            },
-            {
-                name: 'username',
-                min: 4,
-                max: 12,
-                regex: /^[a-zA-Z0-9]*$/
-            },
-            {
-                name: 'age',
-                regex: /^[0-9]*$/
-            },
-            {
-                name: 'Email',
-                regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            },
-            {
-                name: 'bioBox',
-                regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            }
-        ]
-    })
-    if (!val.validate()) {
-        return res.send('wrong profile informations')
-    } else {
-      username = session.uniqueID;
-      var bio = req.body.bioBox;
-      var sex = req.body.sex;
-      var orientation = req.body.orientation_filter;
-      var age = req.body.age;
-      if (parseInt(req.body.age) < 18 || parseInt(req.body.age) > 100) {
-        return res.send('wrong age')
-      }
-      function UserchangeGenderBio(username, callback) {
-        async.waterfall([
-          function(cb) {
-            pool.getConnection(function (err, connection) {
-              var data = {
-                bio: bio,
-                username: username,
-                sex: sex,
-                orientation: orientation,
-                age: age
-              };
-              connection.query('INSERT INTO usersinfo ON DUPLICATE KEY UPDATE ?', data , function (err, rows, fields) {
-                if (err) {
-                  // console.log("error 1" + err);
-                  connection.release();
-                } else {
-                  connection.release();
-                }
-                callback(null, "");
-              });
-            });
-          }
-        ],
-        function (err, bio) {
-          if (err) {
-            callback(err);
-          } else {
-            callback(null, bio);
-          }
-        })
-      }
-      UserchangeGenderBio(username, function (err, callback) {
-        if (err) {
-          res.redirect('/login');
-          // console.log("login again");
-        } else {
-          res.redirect('/home');
-        }
-      })
-    }
-
 });
 
 
@@ -574,8 +547,8 @@ function checkforTags (pool, username) {
 }
 
 
-function insertTagsInDb (pool, tags) {
-  return query(pool, 'INSERT INTO TAGS VALUES ?', [tags])
+function insertTagsInUsersInfos (pool, username, tags) {
+  return query(pool, 'INSERT INTO usersinfo WHERE', [tags])
 }
 
 
@@ -596,6 +569,10 @@ function insertLocationSearch (pool, username, latitude, longitude, country, cit
 
 function getRidofTheRows (pool, username) {
   return query(pool, 'DELETE FROM userlocation WHERE username = ? ', [username])
+}
+
+function getTheTags (pool, tags) {
+  return query(pool, 'SELECT * FROM tags WHERE tags = ?', [tags])
 }
 
 
@@ -711,12 +688,6 @@ router.post('/userLocationSearch', function (req, res){
     let longitude = searcRes[0].longitude;
     let city = searcRes[0].city;
     let country = searcRes[0].country
-    // console.log(searcRes[0].latitude);
-    // console.log(searcRes[0].longitude);
-    // console.log(searcRes[0].city);
-    // console.log(searcRes[0].country);
-    // console.log(searcRes[0].zipcode);
-    // console.log(searcRes);
     searcRes.forEach(elem =>{
       if (typeof elem.city === 'undefined'){
         locationGranted = false
@@ -754,96 +725,6 @@ router.post('/userLocationSearch', function (req, res){
     console.log(err);
   });
 });
-
-
-
-
-
-
-
-
-//   locationCheck(search, function(err, callback){
-//     if (err == "error wrong input"){
-//       res.send({error:  "city does not exist"});
-//     } else if  (err){
-//       res.send({error: "pb with geocoder"});
-//     } else {
-//       userLocationChoice(username, callback, function (err, callback){
-//         if (err){
-//           res.send({error: "pb geocoder 2"});
-//         } else {
-//           res.redirect('/profile');
-//            }
-//          })
-//     }
-//   });
-// function locationCheck(search, callback){
-//   geocoder.geocode(search, function(err, res) {
-//     if (err) {
-//       callback(err);
-//     } else if (res[0] == undefined){
-//        callback("error wrong input");
-//        return res.status(201).send('test');
-//     } else {
-//     userLocationSearch = res;
-//     latitude = userLocationSearch[0].latitude;
-//     longitude = userLocationSearch[0].longitude;
-//     country = userLocationSearch[0].country;
-//     city = userLocationSearch[0].city;
-//     geocoder.reverse({lat:latitude, lon:longitude}, function(err, res) {
-//       if(err){
-//         callback(err);
-//       }
-//       userZips = res;
-//       latitude = userZips[0].latitude;
-//       longitude = userZips[0].longitude;
-//       country = userZips[0].country;
-//       city = userZips[0].city;
-//       zipcode = res[0].zipcode;
-//     inputUserLocationPush = {
-//       username,
-//       latitude,
-//       longitude,
-//       country,
-//       city,
-//       zipcode
-//     };
-//     callback(null, inputUserLocationPush);
-//       });
-//     }
-//   });
-// }
-//   function userLocationChoice(username, inputUserLocationPush, callback){
-//         async.each(inputUserLocationPush, function (userZips, callback){
-//           pool.getConnection(function (err, connection){
-//             if (err){
-//               // console.log(err);
-//               callback(err);
-//             }
-//             connection.query('SELECT * FROM userlocation WHERE username = ?', username, function(err, rows, fields){
-//               if (err){
-//                 // console.log(err);
-//               } else if (rows){
-//                 if (err){
-//                   // console.log(err);
-//                 } else {
-//                   var locationPush = [inputUserLocationPush, username];
-//                 connection.query('UPDATE userlocation SET ? WHERE username = ?', locationPush , function(err, rows, fields){
-//                   connection.release();
-//                 })
-//               }
-//               }
-//             })
-//           });
-//         },
-//         function (err){
-//           if (err){
-//             // console.log(err);
-//           }
-//             callback(null, inputUserLocationPush);
-//           });
-//       }
-
 
 
 
