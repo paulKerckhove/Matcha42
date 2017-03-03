@@ -62,11 +62,10 @@ $(document).ready(function() {
       }
     });
     datas.userTags = userTags.getTags();
-    if (datas.userTags.length <= 1){
-      alert('Enter a minimum of 3 tags so we can match you with others of your kind, fool !');
-      return;
-    }
-    /*console.log(datas.userTags);*/
+    // if (datas.userTags.length <= 1){
+    //   alert('Please enter a minimum of 3 tags!');
+    //   return;
+    // }
 
     $.ajax({
        url: '/profile/tagsPost',

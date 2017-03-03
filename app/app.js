@@ -190,6 +190,19 @@ app.get('/chat', function(req, res){
 
 
 
+app.all('*', function findLastVisit(req, res, next) {
+  if (req.session.user) {
+    if (req.session.visited) {
+      req.lastVisit = req.session.visited;
+    }
+    var date = new Date().toISOString().substr(0, 10);
+    var time = new Date().toISOString().substr(11, 13).slice(0, -8);
+    req.session.visited = 'Last seen on ' + date + ', at ' + time;
+    query.editObject('users', req.session.user.id, { lastSeen: req.lastVisit || req.session.visited });
+    // console.log('lastvisit: ', req.lastVisit)
+  }
+  next();
+});
 
 
 
@@ -199,18 +212,18 @@ app.post('/signup', function(req, res){
         constraints: [{
                 name: 'firstname',
                 min: 3,
-                regex: /^[a-zA-Z]*$/
+                regex: /^[a-zA-Z ]*$/
             },
             {
                 name: 'lastname',
                 min: 3,
-                regex: /^[a-zA-Z]*$/
+                regex: /^[a-zA-Z ]*$/
             },
             {
                 name: 'username',
                 min: 4,
                 max: 12,
-                regex: /^[a-zA-Z0-9]*$/
+                regex: /^[a-zA-Z0-9 ]*$/
             },
             {
                 name: 'password',
@@ -362,7 +375,7 @@ app.post('/login', function(req, res) {
                 name: 'username',
                 min: 4,
                 max: 12,
-                regex: /^[a-zA-Z0-9]*$/
+                regex: /^[a-zA-Z0-9 ]*$/
             }//,
             // {
             //     name: 'password',

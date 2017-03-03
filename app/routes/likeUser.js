@@ -62,7 +62,7 @@ function InsertBlock (pool, username, userUrl) {
 
 
 function deleteLike (pool, username, userUrl) {
-  return query(pool, 'DELETE FROM likes where username = ? AND user_dest = ?', [[username], [userUrl]])
+  return query(pool, 'DELETE FROM likes where username = ? AND user_dest = ? OR user_dest = ? AND username = ?', [[username], [userUrl], [username], [userUrl]])
 }
 
 
@@ -221,22 +221,30 @@ router.post('/blockUser', function(req, res) {
 
 
 router.post('/chatCheck', function(req, res){
+  let match = false;
   username = session.uniqueID;
   var userUrl = req.body.userUrl;
   var arr = [];
 
   checkIfMatch(pool, username, userUrl)
   .then(function(rows){
+    console.log("return of checkIfMatch function");
     if (rows.length > 0){
+      console.log(rows);
       matchRows = rows;
+      // console.log(matchRows[0]);
+      console.log("are we here ?");
         if ((matchRows[0].user_1 === username || matchRows[0].user_1 === userUrl) && (matchRows[0].user_2 === username || matchRows[0].user_2 === userUrl)){
-          return res.status(201).send({elem :matchRows});
-        } else {
-          return res.send('wrong profile informations')
+          console.log("rien ne part d'ici ");
+          return res.status(201).send({elem :matchRows, match});
         }
+    } else {
+      console.log("no match");
+      return res.status(201).send({})
     }
   })
-})
+  })
+
 
 return router;
 }

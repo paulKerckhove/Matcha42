@@ -97,7 +97,11 @@ $(document).ready(function() {
       type: 'post',
       data: data,
       success: function(result){
-        window.location.href = '/chatting/'+ result.elem[0].id;
+        if (typeof result.elem == 'undefined'){
+          window.location.href = '/users/'+ userUrl;
+        } else {
+            window.location.href = '/chatting/'+ result.elem[0].id;
+        }
       },
       error: function(result){
         window.location.href = '/users/'+ userUrl;

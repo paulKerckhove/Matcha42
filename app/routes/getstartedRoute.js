@@ -60,12 +60,12 @@ module.exports = function(io){
 
 
 function getUserPicture (pool, username) {
-  return query(pool, 'SELECT * FROM photos WHERE username = ?')
+  return query(pool, 'SELECT new_path FROM photos WHERE username = ? LIMIT 5', [username])
 }
 
 
 function getUserprofile (pool, username) {
-  return query(pool, 'SELECT * FROM usersinfo WHERE username = ?', [username])
+  return query(pool, 'SELECT username, age, sex, orientation, bio, first_name, last_name, email FROM usersinfo WHERE username = ?', [username])
 }
 
 
@@ -73,6 +73,15 @@ function checkforTags (pool, username) {
   return query(pool, 'SELECT tags.tags FROM tags INNER JOIN user_tags ON user_tags.tag_id = tags.id WHERE user_tags.username = ?', [username])
 }
 
+
+function getUserTagsForProfilePage2 (pool) {
+  return query(pool, 'SELECT id, tags FROM tags')
+}
+
+
+function getUserTagsForProfilePage (pool, username) {
+  return query(pool, 'SELECT tag_id FROM user_tags WHERE username = ?', [username])
+}
 
 router.get('/', function (req, res) {
   // var session = req.session;
@@ -97,7 +106,6 @@ router.get('/', function (req, res) {
       res.redirect('/login');
     } else {
       userInfosForPug = callback;
-      /*console.log("about to log userInfosForPug " + userInfosForPug);*/
       fun.getUserTags(username, function (err, callback) {
         var  dataUserTags = [];
         if (err) {
@@ -105,13 +113,15 @@ router.get('/', function (req, res) {
         } else {
           dataUserTags = callback;
           async.each(dataUserTags, function(drdre, callback){
+            console.log("about to look for the tags");
             pool.getConnection(function (err, connection) {
               connection.query('SELECT * FROM tags WHERE id = ?', drdre.tag_id , function (err, rows, fields) {
                 if (err) {
-                  //console.log(err);
+                  console.log(err);
                   connection.release();
                   callback(err);
                 } else {
+                  console.log("we have the tags");
                   /*console.log(rows[0]);*/
                   dataUserTagsLoop[count] = rows[0].tags;
                   count++;
@@ -122,15 +132,16 @@ router.get('/', function (req, res) {
             });
           }),
           fun.getUserPicturesMofo(username, function (err, callback){
+            console.log("about to look for the  pictures");
             if (err){
-              //console.log("err");
+              console.log("err");
             } else {
               dataUserPictures = callback;
               /*console.log(dataUserPictures);*/
+              console.log("we have the pictures");
               async.each(dataUserPictures, function(biggie, callback){
                 dataUserPictures[countPic] = dataUserPictures[countPic].new_path;
                 countPic++;
-                /*console.log(dataUserPictures);*/
                 callback(null, dataUserPictures);
               },
               function (err, results) {
@@ -149,24 +160,29 @@ router.get('/', function (req, res) {
 });
 
 
+
+
+
+
+
 router.post('/profile', function (req, res) {
   val = new Validator({
         dataSource: req.body,
         constraints: [{
                 name: 'firstname',
                 min: 3,
-                regex: /^[a-zA-Z]*$/
+                regex: /^[a-zA-Z ]*$/
             },
             {
                 name: 'lastname',
                 min: 3,
-                regex: /^[a-zA-Z]*$/
+                regex: /^[a-zA-Z ]*$/
             },
             {
                 name: 'username',
                 min: 4,
                 max: 12,
-                regex: /^[a-zA-Z0-9]*$/
+                regex: /^[a-zA-Z0-9 ]*$/
             },
             {
                 name: 'age',
@@ -178,8 +194,8 @@ router.post('/profile', function (req, res) {
             },
             {
                 name: 'bioBox',
-                regex: /^[a-zA-Z ]*$/
-            }
+                regex: /^[a-zA-Z .!?]*$/
+              }
         ]
     })
     if (!val.validate()) {
@@ -246,22 +262,10 @@ router.post('/profile', function (req, res) {
   })
 });
 
-// router.post('/tagsPost', function(req, res){
-//   let username = session.uniqueID;
-//   let tags = req.body['userTags[]'];
-//   console.log(tags);
-//   checkforTags(pool, username)
-//   .then(function(rows){
-//     if (rows.length > 0){
-//
-//     }
-//   })
-//
-// })
-//
 
 
 router.post('/tagsPost', function(req, res) {
+  console.log('/tagsPost function');
   username = session.uniqueID;
   var tags;
   tags = req.body['userTags[]'];
@@ -359,9 +363,12 @@ router.post('/tagsPost', function(req, res) {
 
 
 router.post('/userPhoto', function(req, res) {
+  let username = session.uniqueID;
+  console.log('userphoto function');
   checkForNumberOfPics(pool, username)
   .then(function(rows){
     if (rows.length > 5) {
+      console.log("lenght is ", rows.length);
       return res.render('/profile')
     } else {
       username = session.uniqueID;
@@ -418,9 +425,12 @@ router.post('/userPhoto', function(req, res) {
                       }
                       /*console.log(pageData);*/
                         if (err) {
+                            console.log(err);
+                            console.log('error in here');
                             res.status(500);
                             res.json({'success': false});
                         } else {
+                        console.log("redirect if is good ");
                          res.status(201);
                          return res.redirect('/profile');
                         }
@@ -546,9 +556,13 @@ function checkforTags (pool, username) {
   return query(pool, 'SELECT tags.tags FROM tags INNER JOIN user_tags ON user_tags.tag_id = tags.id WHERE user_tags.username = ?', [username])
 }
 
+function checkTag (pool, tags) {
+  return (pool, 'SELECT * FROM tags WHERE tags = ?', [tags])
+}
 
-function insertTagsInUsersInfos (pool, username, tags) {
-  return query(pool, 'INSERT INTO usersinfo WHERE', [tags])
+
+function insertTagsInTags (pool, tags) {
+  return query(pool, 'INSERT INTO tags SET ?', [tags])
 }
 
 

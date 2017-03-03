@@ -8,7 +8,6 @@ html
 		script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
 		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
 
-		script(src='/static/js/scrolling-nav.js')
 		script(src='/static/actionOnuserPage.js')
 		script(src="/socket.io/socket.io.js")
 		link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
@@ -67,8 +66,6 @@ html
 					userSex.innerHTML = "male"
 				} else if (tabData.sex === "f"){
 					userSex.innerHTML = "female"
-				} else if (tabData.sex === "u"){
-					userSex.innerHTML = "undefiend"
 				}
 
 				/* We get the user's orientation and display it regarding what we have in the db */
@@ -80,6 +77,10 @@ html
 				} else if (tabData.orientation === "b") {
 					userOrientation.innerHTML = "bi"
 				}
+
+				/* User score*/
+				var userScore = document.getElementById("userScore")
+				userScore.innerHTML = tabData.popularity + " popularity"
 
 				var userlocation = document.getElementById("userLocation")
 				userLocation.innerHTML = tabData.city
@@ -103,7 +104,7 @@ html
 				})
 
 
-	body(id='', data-spy='scroll', data-target='.navbar-fixed-top')
+	body(id='')
 		section(id='profile')
 			div(class='container')
 				div(class='row')
@@ -128,6 +129,7 @@ html
 									li#userSex
 									li#userOrientation
 									li#userLocation
+									li#userScore
 					div(class='row')
 						div(class='col-lg-12', id='userBio')
 							span#userBio
