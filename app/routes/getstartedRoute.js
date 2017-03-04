@@ -18,46 +18,6 @@ var Validator = require('./methods.js');
 module.exports = function(io){
 
 
-// router.get('/', function (req, res){
-//   let username = session.uniqueID;
-//   let userInfosForPug;
-//   let dataUserTagsLoop;
-//   let count = 0;
-//   let Ustags;
-//   let taglen;
-//   let piclen;
-//   let countPic = 0;
-//   let dataUserPictures = [];
-//   let blocked = [];
-//   checkIfBlocked(pool, username)
-//   .then(function(rows){
-//     if (rows.length > 0){
-//       blocked = rows;
-//     }
-//   })
-//   getUserprofile (pool, username)
-//   .then(function(rows){
-//     if (rows.length > 0){
-//       userInfosForPug = rows
-//     }
-//   })
-//   checkforTags (pool, username)
-//   .then(function(rows){
-//     if (rows.length > 0){
-//       dataUserTags = rows;
-//     }
-//   })
-//   getUserPicture (pool, username)
-//   .then(function(rows){
-//     if (rows.length > 0){
-//       dataUserPictures = rows;
-//     }
-//   })
-//   return res.render('./profile.pug', {userinfo: userInfosForPug, tags: dataUserTags, dataUserPictures: dataUserPictures, blocked :blocked});
-//
-//
-// })
-
 
 function getUserPicture (pool, username) {
   return query(pool, 'SELECT new_path FROM photos WHERE username = ? LIMIT 5', [username])
@@ -85,15 +45,15 @@ function getUserTagsForProfilePage (pool, username) {
 
 router.get('/', function (req, res) {
   // var session = req.session;
-  var username = session.uniqueID;
-  var userInfosForPug;
-  var dataUserTagsLoop = [];
-  var count = 0;
-  var Ustags;
-  var taglen;
-  var piclen;
-  var countPic = 0;
-  var dataUserPictures = [];
+  let username = session.uniqueID;
+  let userInfosForPug;
+  let dataUserTagsLoop = [];
+  let count = 0;
+  let Ustags;
+  let taglen;
+  let piclen;
+  let countPic = 0;
+  let dataUserPictures = [];
   let blocked = [];
   checkIfBlocked(pool, username)
   .then(function(rows){
@@ -107,7 +67,7 @@ router.get('/', function (req, res) {
     } else {
       userInfosForPug = callback;
       fun.getUserTags(username, function (err, callback) {
-        var  dataUserTags = [];
+        let  dataUserTags = [];
         if (err) {
           //console.log(err);
         } else {
@@ -148,7 +108,6 @@ router.get('/', function (req, res) {
               /*console.log(dataUserTagsLoop);*/
               taglen = dataUserTagsLoop.length;
               piclen = dataUserPictures.length;
-
               return res.render('./profile.pug', {userinfo: userInfosForPug, tags: dataUserTagsLoop, taglen: taglen, piclen: piclen, dataUserPictures: dataUserPictures, blocked :blocked});
             })
             }
@@ -171,18 +130,18 @@ router.post('/profile', function (req, res) {
         constraints: [{
                 name: 'firstname',
                 min: 3,
-                regex: /^[a-zA-Z ]*$/
+                regex: /^[a-zA-Z]*$/
             },
             {
                 name: 'lastname',
                 min: 3,
-                regex: /^[a-zA-Z ]*$/
+                regex: /^[a-zA-Z]*$/
             },
             {
                 name: 'username',
                 min: 4,
                 max: 12,
-                regex: /^[a-zA-Z0-9 ]*$/
+                regex: /^[a-zA-Z0-9]*$/
             },
             {
                 name: 'age',
@@ -698,6 +657,14 @@ router.post('/userLocationSearch', function (req, res){
   let locationGranted = false
   geocoder.geocode(search)
   .then(function(searcRes) {
+    if (searcRes.length == 0){
+      locationGranted = false
+      var response = {
+        status  : 400,
+        success : 'Wrong input'
+      }
+      return res.status(200).send(JSON.stringify(response));
+    } 
     let latitude = searcRes[0].latitude;
     let longitude = searcRes[0].longitude;
     let city = searcRes[0].city;

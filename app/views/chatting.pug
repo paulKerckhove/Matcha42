@@ -17,24 +17,23 @@ html
     script(src="/socket.io/socket.io.js")
 
     link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
-    link(rel='stylesheet', type='text/css', href='/static/css/scrolling-nav.css')
     link(rel='stylesheet', type='text/css', href='/static/css/styles.css')
     link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro', rel='stylesheet')
-    body(id='', data-spy='scroll', data-target='.navbar-fixed-top')
-      nav(class='navbar navbar-default navbar-fixed-top', role='navigation')
+    body(id='', class='chat_body')
+      section(id='profile')
         div(class='container')
-          div(class='navbar-header page-scroll')
-            button(type='button', class='navbar-toggle', data-toggle='collapse', data-target='.navbar-ex1-collapse')
-            span(class='sr-only')
-              |Toggle navigation
-              span(class='icon-bar')
-              span(class='icon-bar')
-              span(class='icon-bar')
-
-          a(class='navbar-brand page-scroll', href='http://localhost:3000/profile')
-            |Back to my profile
-          a(class='navbar-brand page-scroll', href='/logout', id='logOutButton')
-            |Logout
+          div(class='row')
+            div(class='col-lg-12', id='positionForPictures')
+              div(id='', class='')
+                div(class='row')
+                  a(href='http://localhost:3000/notif')
+                    |Notifications
+                    p(class='full-circle-notif-count_chat')
+                  a(class='profile_page_link', href='http://localhost:3000/profile')
+                    |Back to your profile page
+                  a(class='logout_link', href='/logout')
+                    |logout
+                  div(class='container', id='userProfilePic')
       section(id='profile')
         div(class='container-notif container')
           ul(class='notificationContainer', id='userNotifs')

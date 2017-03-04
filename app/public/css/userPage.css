@@ -51,7 +51,7 @@ a {
 #reportButton{
   position:absolute;
   bottom:0;
-  left:0;
+  right:0;
 }
 
 
@@ -77,7 +77,7 @@ a {
     -webkit-border-radius:75px;
     -moz-border-radius:75px;
     margin-top : -33px;
-    margin-left: 75px;
+    margin-left: 380px;
 }
 
 

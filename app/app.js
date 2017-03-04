@@ -212,18 +212,18 @@ app.post('/signup', function(req, res){
         constraints: [{
                 name: 'firstname',
                 min: 3,
-                regex: /^[a-zA-Z ]*$/
+                regex: /^[a-zA-Z]*$/
             },
             {
                 name: 'lastname',
                 min: 3,
-                regex: /^[a-zA-Z ]*$/
+                regex: /^[a-zA-Z]*$/
             },
             {
                 name: 'username',
                 min: 4,
                 max: 12,
-                regex: /^[a-zA-Z0-9 ]*$/
+                regex: /^[a-zA-Z0-9]*$/
             },
             {
                 name: 'password',
@@ -375,7 +375,7 @@ app.post('/login', function(req, res) {
                 name: 'username',
                 min: 4,
                 max: 12,
-                regex: /^[a-zA-Z0-9 ]*$/
+                regex: /^[a-zA-Z0-9]*$/
             }//,
             // {
             //     name: 'password',
@@ -394,15 +394,17 @@ app.post('/login', function(req, res) {
     let password = req.body.password;
     loginUserifOk(pool, username)
     .then(function(rows){
-      if (rows) {
+      if (rows.length > 0) {
+        console.log(rows);
         if (rows[0].username === username && bcrypt.compareSync(password, rows[0].password) == true) {
           req.session.uniqueID = rows[0].username;
           return res.redirect('/profile');
         } else {
           return res.render('shrug');
         }
-      } else {
-        return res.render('/shrug');
+      } else if (rows.length == 0) {
+        console.log("homie");
+        return res.render('./shrug');
       }
     })
   }

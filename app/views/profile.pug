@@ -26,10 +26,6 @@ html
       var username =!{JSON.stringify(userinfo.username)}
       var blocked =!{JSON.stringify(blocked)}
       socket.emit('init', username);
-
-
-
-
   body(id='page-top', data-spy='scroll', data-target='.navbar-fixed-top')
     nav(class='navbar navbar-default navbar-fixed-top', role='navigation')
       div(class='container')
@@ -190,9 +186,9 @@ html
                   var usTagsPug = !{JSON.stringify(tags)}
                   var stringlen = !{JSON.stringify(taglen)}
                   var arr = [];
-                for (var i = 0; i < stringlen; i++) {
-                arr[i] = usTagsPug[i];
-              }
+                  for (var i = 0; i < stringlen; i++) {
+                    arr[i] = usTagsPug[i];
+                  }
                   $('#my-tag-list').tags({
                     tagData: arr
                   });

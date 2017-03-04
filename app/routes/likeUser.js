@@ -87,7 +87,7 @@ function InsertMatchNotif (pool, username, userUrl) {
 
 
 function deletedMatch (pool, username, userUrl) {
-  return query(pool, 'DELETE FROM matchs WHERE user_1 = ? AND user_2 = ?', [[username],[userUrl]])
+  return query(pool, 'DELETE FROM matchs WHERE user_1 = ? AND user_2 = ? OR user_2 = ? AND user_1', [[username],[userUrl], [username], [userUrl]])
 }
 
 
@@ -228,18 +228,13 @@ router.post('/chatCheck', function(req, res){
 
   checkIfMatch(pool, username, userUrl)
   .then(function(rows){
-    console.log("return of checkIfMatch function");
     if (rows.length > 0){
       console.log(rows);
       matchRows = rows;
-      // console.log(matchRows[0]);
-      console.log("are we here ?");
         if ((matchRows[0].user_1 === username || matchRows[0].user_1 === userUrl) && (matchRows[0].user_2 === username || matchRows[0].user_2 === userUrl)){
-          console.log("rien ne part d'ici ");
           return res.status(201).send({elem :matchRows, match});
         }
     } else {
-      console.log("no match");
       return res.status(201).send({})
     }
   })

@@ -63,8 +63,8 @@ var getUserPicturesMofo = function getUserPicturesMofo(username, callback){
         cb(err);
       } else {
         console.log(rows);
-        connection.release();
         callback(null, rows);
+        connection.release();
       }
     });
   });

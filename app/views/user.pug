@@ -6,12 +6,10 @@ html
 		meta(name='viewport', content='width=device-width, initial-scale=1.0')
 		script(src='/static/js/jquery.js')
 		script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
-		script(src='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js')
 
 		script(src='/static/actionOnuserPage.js')
 		script(src="/socket.io/socket.io.js")
 		link(rel='stylesheet', type='text/css', href='https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css')
-		link(rel='stylesheet', type='text/css', href='/static/css/scrolling-nav.css')
 		link(rel='stylesheet', type='text/css', href='/static/css/userPage.css')
 		link(href='https://fonts.googleapis.com/css?family=Source+Sans+Pro', rel='stylesheet')
 		script.
@@ -27,13 +25,12 @@ html
 
 
 			$(document).ready(function(){
-				$('.full-circle-notif-count').hide();
 				var socket = io();
 			  socket.emit('init', username);
 
 			  $('.full-circle-notif-count').hide();
 			  socket.on('notification', function(){
-			    //console.log('view from');
+			    console.log('view from');
 			    /*view_notification = true;*/
 			    $('.full-circle-notif-count').toggle();
 			    })
@@ -113,6 +110,7 @@ html
 							div(class='row')
 								a(href='http://localhost:3000/notif')
 									|Notifications
+									p(class='full-circle-notif-count')
 								a(class='profile_page_link', href='http://localhost:3000/profile')
 									|Back to your profile page
 								a(class='logout_link', href='/logout')

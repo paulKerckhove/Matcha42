@@ -360,6 +360,15 @@ a {
   margin-left: 600px;
   padding-top: -8px;
 }
+
+.chat_body {
+  background-color: #3498db
+}
+
+.full-circle-notif-count-chat{
+  margin-right: 150px;
+  padding-top: 120px;
+}
 /*#searchBox {
   width: 250px;
   height: 150px;
