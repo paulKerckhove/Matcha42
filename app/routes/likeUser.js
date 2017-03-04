@@ -62,8 +62,13 @@ function InsertBlock (pool, username, userUrl) {
 
 
 function deleteLike (pool, username, userUrl) {
-  return query(pool, 'DELETE FROM likes where username = ? AND user_dest = ? OR user_dest = ? AND username = ?', [[username], [userUrl], [username], [userUrl]])
+  return query(pool, 'DELETE FROM likes where username = ? AND user_dest = ?', [[username], [userUrl]])
 }
+
+
+// function deleteLike2 (pool, userUrl, username) {
+//   return query(pool, 'DELETE FROM likes where username = ? AND user_dest = ?', [[userUrl], [username]])
+// }
 
 
 function deletedBlock (pool, username, userUrl) {
@@ -71,8 +76,8 @@ function deletedBlock (pool, username, userUrl) {
 }
 
 
-function checkForLikeRows2 (pool, username, userUrl) {
-  return query(pool, 'SELECT * FROM likes where username = ? AND user_dest = ?', [[username], [userUrl]])
+function checkForLikeRows2 (pool, userUrl, username) {
+  return query(pool, 'SELECT * FROM likes where username = ? AND user_dest = ?', [[userUrl], [username]])
 }
 
 
@@ -111,7 +116,7 @@ function checkForMatch (pool, username, userUrl, matchCheck, matchCheck2) {
   .then(function(rows){
     if (rows.length > 0){
       matchCheck = true;
-      checkForLikeRows2(pool, username, userUrl)
+      checkForLikeRows2(pool, userUrl, userna)
       .then(function(rows){
         if (rows.length > 0){
           matchCheck2 = true;
