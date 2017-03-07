@@ -35,6 +35,7 @@ $(document).ready(function() {
     data.userEmail = $('#userEmailInput').val();
 
 
+
     $.ajax({
              url: '/profile/profile',
              type: 'POST',
@@ -208,9 +209,11 @@ $('#city').click(function(){
            dataType: 'json',
            success: function (response) {
              if(response.status == 200){
+               console.log("good");
                alert("Location has been updated");
-               $('#search').val("");
+              //  $('#search').val("");
              } else if (response.status == 400){
+               console.log("bad");
                $('#search').val("");
                alert("Wrong input");
              }

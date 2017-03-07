@@ -73,15 +73,15 @@ router.get('/', function (req, res) {
         } else {
           dataUserTags = callback;
           async.each(dataUserTags, function(drdre, callback){
-            console.log("about to look for the tags");
+            // console.log("about to look for the tags");
             pool.getConnection(function (err, connection) {
               connection.query('SELECT * FROM tags WHERE id = ?', drdre.tag_id , function (err, rows, fields) {
                 if (err) {
-                  console.log(err);
+                  // console.log(err);
                   connection.release();
                   callback(err);
                 } else {
-                  console.log("we have the tags");
+                  // console.log("we have the tags");
                   /*console.log(rows[0]);*/
                   dataUserTagsLoop[count] = rows[0].tags;
                   count++;
@@ -92,13 +92,13 @@ router.get('/', function (req, res) {
             });
           }),
           fun.getUserPicturesMofo(username, function (err, callback){
-            console.log("about to look for the  pictures");
+            // console.log("about to look for the  pictures");
             if (err){
-              console.log("err");
+              // console.log("err");
             } else {
               dataUserPictures = callback;
               /*console.log(dataUserPictures);*/
-              console.log("we have the pictures");
+              // console.log("we have the pictures");
               async.each(dataUserPictures, function(biggie, callback){
                 dataUserPictures[countPic] = dataUserPictures[countPic].new_path;
                 countPic++;
@@ -224,7 +224,7 @@ router.post('/profile', function (req, res) {
 
 
 router.post('/tagsPost', function(req, res) {
-  console.log('/tagsPost function');
+  // console.log('/tagsPost function');
   username = session.uniqueID;
   var tags;
   tags = req.body['userTags[]'];
@@ -323,7 +323,7 @@ router.post('/tagsPost', function(req, res) {
 
 router.post('/userPhoto', function(req, res) {
   let username = session.uniqueID;
-  console.log('userphoto function');
+  // console.log('userphoto function');
   checkForNumberOfPics(pool, username)
   .then(function(rows){
     if (rows.length > 5) {
@@ -386,17 +386,16 @@ router.post('/userPhoto', function(req, res) {
                         if (err) {
                             console.log(err);
                             console.log('error in here');
-                            res.status(500);
+                            // res.status(500);
                             res.json({'success': false});
                         } else {
                         console.log("redirect if is good ");
-                         res.status(201);
+                        //  res.status(201);
                          return res.redirect('/profile');
                         }
                     });
                   }
                 })
-
               });
             });
         } else {
@@ -641,6 +640,7 @@ router.post('/userLocationDenied', function (req, res){
 
 
 router.post('/userLocationSearch', function (req, res){
+  console.log("hola mami");
   val = new Validator({
         dataSource: req.body,
         constraints: [{
@@ -650,21 +650,28 @@ router.post('/userLocationSearch', function (req, res){
         ]
     })
     if (!val.validate()) {
-        return res.redirect('/profile')
+      var response = {
+        status  : 400,
+        success : 'Wrong input'
+      }
+      return res.status(200).send(JSON.stringify(response));
     }
   let username = session.uniqueID;
   let search = req.body.search;
   let locationGranted = false
+  console.log("search" , search);
   geocoder.geocode(search)
   .then(function(searcRes) {
+    console.log("searcRes" ,searcRes);
     if (searcRes.length == 0){
+      console.log("searcRes length" , searcRes);
       locationGranted = false
       var response = {
         status  : 400,
         success : 'Wrong input'
       }
       return res.status(200).send(JSON.stringify(response));
-    } 
+    }
     let latitude = searcRes[0].latitude;
     let longitude = searcRes[0].longitude;
     let city = searcRes[0].city;

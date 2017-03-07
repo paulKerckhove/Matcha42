@@ -13,18 +13,18 @@ var async = require('async');
 
 
 var getUserprofile = function getUserprofile(username, callback){
-  console.log("we got the usersinfo here");
+  // console.log("we got the usersinfo here");
       pool.getConnection(function (err, connection) {
         var dataUser = [];
 
         // Error check
         connection.query('SELECT username, age, sex, orientation, bio, email, first_name, last_name FROM usersinfo WHERE username = ?', username , function (err, rows, fields) {
           if (err) {
-            console.log("error 1" , err);
+            // console.log("error 1" , err);
             connection.release();
             cb(err);
           } else {
-            console.log("we have the data" , rows[0]);
+            // console.log("we have the data" , rows[0]);
             connection.release();
             callback(null, rows[0]);
           }
@@ -34,18 +34,18 @@ var getUserprofile = function getUserprofile(username, callback){
 
 
 var getUserTags = function getUserTags(username, callback){
-  console.log("we get the tags here");
+  // console.log("we get the tags here");
       pool.getConnection(function (err, connection) {
         var dataUserTags = [];
 
         connection.query('SELECT * FROM user_tags WHERE username = ?', username , function (err, rows, fields) {
           if (err){
-            console.log("error 2 " , err);
+            // console.log("error 2 " , err);
           } else if (rows.length < 1) {
-            console.log("no tags for the moment");
+            // console.log("no tags for the moment");
             callback(null, rows);
           } else {
-            console.log(rows);
+            // console.log(rows);
             connection.release();
             callback(null, rows);
           }
@@ -54,15 +54,15 @@ var getUserTags = function getUserTags(username, callback){
 }
 
 var getUserPicturesMofo = function getUserPicturesMofo(username, callback){
-  console.log("we get the pictures here");
+  // console.log("we get the pictures here");
   pool.getConnection(function (err, connection){
     connection.query('SELECT * FROM photos WHERE username = ?', username , function (err, rows, fields){
       if (err){
-        console.log("error 3" , err);
+        // console.log("error 3" , err);
         connection.release();
         cb(err);
       } else {
-        console.log(rows);
+        // console.log(rows);
         callback(null, rows);
         connection.release();
       }

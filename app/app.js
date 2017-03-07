@@ -480,7 +480,7 @@ function query (pool, sql, values) {
 
 
 function lookForEmailToResetP (pool, mail) {
-  return query(pool, 'SELECT email, username, password FROM usersmain WHERE email = ?', [mail])
+  return query(pool, 'SELECT email, username, password FROM usersinfo WHERE email = ?', [mail])
 }
 
 

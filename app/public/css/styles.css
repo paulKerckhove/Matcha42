@@ -369,6 +369,11 @@ a {
   margin-right: 150px;
   padding-top: 120px;
 }
+
+.matchaMain{
+  text-align: center;
+  font-size: 132px;
+}
 /*#searchBox {
   width: 250px;
   height: 150px;

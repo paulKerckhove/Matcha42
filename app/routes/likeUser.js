@@ -116,7 +116,7 @@ function checkForMatch (pool, username, userUrl, matchCheck, matchCheck2) {
   .then(function(rows){
     if (rows.length > 0){
       matchCheck = true;
-      checkForLikeRows2(pool, userUrl, userna)
+      checkForLikeRows2(pool, userUrl, username)
       .then(function(rows){
         if (rows.length > 0){
           matchCheck2 = true;
