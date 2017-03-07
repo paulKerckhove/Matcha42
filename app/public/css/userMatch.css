@@ -93,3 +93,7 @@ a {
   font-size: 17px;
   list-style: none;
 }
+
+.notif_on_matchpage {
+  color: red;
+}

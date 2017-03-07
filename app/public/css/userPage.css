@@ -82,6 +82,18 @@ a {
 
 
 .profile_page_link {
-  padding: 20px;
+  /*padding: 20px;*/
   margin-bottom: 20px;
+  font-size: 25px;
+}
+
+.notifications_link {
+  font-size: 25px;
+  padding-left: 9px;
+  padding-right: 11px;
+}
+
+.logout_link {
+  font-size: 25px;
+  padding-left: 11px;
 }

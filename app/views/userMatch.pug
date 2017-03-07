@@ -330,22 +330,20 @@ html
       })
 
   body(id='page-top', data-spy='scroll', data-target='.navbar-fixed-top')
-    nav(class='navbar navbar-default navbar-fixed-top', role='navigation')
+    section(id='profile')
       div(class='container')
-        div(class='navbar-header page-scroll')
-          button(type='button', class='navbar-toggle', data-toggle='collapse', data-target='.navbar-ex1-collapse')
-            span(class='sr-only')
-              |Toggle navigation
-            span(class='icon-bar')
-            span(class='icon-bar')
-            span(class='icon-bar')
-          a(class='navbar-brand page-scroll', href='http://localhost:3000/profile')
-            |You
-          a(class='navbar-brand page-scroll', href='http://localhost:3000/notif')
-            |Notifications
-            p(class="full-circle-notif-count")
-          a(class='navbar-brand page-scroll', href='/logout', id='logOutButton')
-            |Logout
+        div(class='row')
+          div(class='col-lg-12', id='positionForPictures')
+            div(id='', class='')
+              div(class='row')
+                a(href='http://localhost:3000/notif', class='notif_on_matchpage')
+                  |Notifications
+                  p(class='full-circle-notif-count')
+                a(class='profile_page_link', href='http://localhost:3000/profile')
+                  |Back to your profile page
+                a(class='logout_link', href='/logout')
+                  |logout
+
 
     section(id='Suggestions', class='intro-section')
       div(class='container')
