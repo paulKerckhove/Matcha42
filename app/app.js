@@ -395,7 +395,7 @@ app.post('/login', function(req, res) {
     loginUserifOk(pool, username)
     .then(function(rows){
       if (rows.length > 0) {
-        console.log(rows);
+        // console.log(rows);
         if (rows[0].username === username && bcrypt.compareSync(password, rows[0].password) == true) {
           req.session.uniqueID = rows[0].username;
           return res.redirect('/profile');
@@ -403,7 +403,7 @@ app.post('/login', function(req, res) {
           return res.render('shrug');
         }
       } else if (rows.length == 0) {
-        console.log("homie");
+        // console.log("homie");
         return res.render('./shrug');
       }
     })
@@ -415,19 +415,20 @@ function loginUserifOk (pool, username) {
   return query(pool, 'SELECT * FROM usersmain WHERE username = ?', [username])
 }
 
+
+
 app.post('/resetP', function (req, res){
   val = new Validator({
         dataSource: req.body,
         constraints: [{
-                name: 'Email',
+                name: 'email',
                 regex: /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
             }
         ]
     })
     if (!val.validate()) {
         return res.redirect('/signup')
-    }
-    if (!req.body.email){
+    } else if (!req.body.email){
       return res.redirect('/resetP')
     }
 	var mail = req.body.email;
@@ -438,6 +439,7 @@ app.post('/resetP', function (req, res){
 
    lookForEmailToResetP(pool, mail)
    .then(function(rows){
+    //console.log("rows" , rows);
      if (rows.length > 0){
        var pwd = Math.random().toString(36).slice(2);
        rows[0].password = pwd;

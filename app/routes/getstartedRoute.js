@@ -327,7 +327,7 @@ router.post('/userPhoto', function(req, res) {
   checkForNumberOfPics(pool, username)
   .then(function(rows){
     if (rows.length > 5) {
-      console.log("lenght is ", rows.length);
+      // console.log("lenght is ", rows.length);
       return res.render('/profile')
     } else {
       username = session.uniqueID;
@@ -384,12 +384,11 @@ router.post('/userPhoto', function(req, res) {
                       }
                       /*console.log(pageData);*/
                         if (err) {
-                            console.log(err);
-                            console.log('error in here');
+                            // console.log(err);
+                            // console.log('error in here');
                             // res.status(500);
-                            res.json({'success': false});
+                            return res.redirect('/shrug')
                         } else {
-                        console.log("redirect if is good ");
                         //  res.status(201);
                          return res.redirect('/profile');
                         }
@@ -640,7 +639,7 @@ router.post('/userLocationDenied', function (req, res){
 
 
 router.post('/userLocationSearch', function (req, res){
-  console.log("hola mami");
+
   val = new Validator({
         dataSource: req.body,
         constraints: [{
@@ -650,21 +649,30 @@ router.post('/userLocationSearch', function (req, res){
         ]
     })
     if (!val.validate()) {
+
       var response = {
         status  : 400,
         success : 'Wrong input'
       }
       return res.status(200).send(JSON.stringify(response));
     }
+    if (req.body.search == "") {
+      var response = {
+        status  : 400,
+        success : 'Wrong input'
+      }
+      return res.status(200).send(JSON.stringify(response));
+    }
+    // console.log("body", req.body.search);
   let username = session.uniqueID;
   let search = req.body.search;
   let locationGranted = false
-  console.log("search" , search);
+
   geocoder.geocode(search)
   .then(function(searcRes) {
-    console.log("searcRes" ,searcRes);
+
     if (searcRes.length == 0){
-      console.log("searcRes length" , searcRes);
+
       locationGranted = false
       var response = {
         status  : 400,
@@ -696,10 +704,10 @@ router.post('/userLocationSearch', function (req, res){
         if (rows.length > 0) {
           getRidofTheRows(pool, username)
           insertLocationSearch(pool, username, latitude, longitude, country, city)
-          console.log("location has been inserted");
+
         } else {
           insertLocationSearch(pool, username, latitude, longitude, country, city)
-          console.log("location has been inserted");
+
         }
       })
       var response = {
@@ -710,7 +718,7 @@ router.post('/userLocationSearch', function (req, res){
     }
   })
   .catch(function(err) {
-    console.log(err);
+
   });
 });
 

@@ -199,7 +199,7 @@ $('#city').click(function(){
   var data = {};
   var search = $('#search').val()
   data.search = search;
-
+  console.log(data);
 
   $.ajax({
            url: '/profile/userLocationSearch',
