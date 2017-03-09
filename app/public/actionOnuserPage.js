@@ -43,7 +43,7 @@ $(document).ready(function() {
         data: data,
         dataType: 'json',
         success: function(data){
-       console.log("post success");
+      //  console.log("post success");
      },
      error: function(data) {
        window.location.href = '/profile'
@@ -77,10 +77,10 @@ $(document).ready(function() {
       data: data,
       dataType: 'json',
       success: function(data){
-     console.log("post success");
+    //  console.log("post success");
      },
      error: function(data){
-     console.log("please");
+    //  console.log("please");
                      }
                    });
   })

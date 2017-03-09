@@ -199,7 +199,7 @@ $('#city').click(function(){
   var data = {};
   var search = $('#search').val()
   data.search = search;
-  console.log(data);
+  // console.log(data);
 
   $.ajax({
            url: '/profile/userLocationSearch',
@@ -209,11 +209,11 @@ $('#city').click(function(){
            dataType: 'json',
            success: function (response) {
              if(response.status == 200){
-               console.log("good");
+              //  console.log("good");
                alert("Location has been updated");
               //  $('#search').val("");
              } else if (response.status == 400){
-               console.log("bad");
+              //  console.log("bad");
                $('#search').val("");
                alert("Wrong input");
              }
@@ -241,7 +241,7 @@ $('#ageSubmit').click(function(){
   var data = {};
   data.age1 = $('[name=ageSearch1]').val();
   data.age2 = $('[name=ageSearch2]').val();
-  console.log(data);
+  // console.log(data);
 
 
   $.ajax({

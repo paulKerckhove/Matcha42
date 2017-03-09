@@ -164,7 +164,7 @@ router.post('/', function(req, res) {
               checkIfBlocked (pool, username, userUrl)
               .then(function(rows){
                 if (rows.length > 0){
-                  console.log("cannot send popscore up");
+                  // console.log("cannot send popscore up");
                 } else {
                   insertPopScoreForLike(pool, userUrl)
                   likeInserted = true;
@@ -175,7 +175,7 @@ router.post('/', function(req, res) {
               checkIfBlocked (pool, username, userUrl)
               .then (function(rows){
                 if (rows.length > 0) {
-                  console.log("cannot send like notif");
+                  // console.log("cannot send like notif");
                 } else {
                   InsertLikeNotif(pool, username, userUrl)
                   if (io.clients){
@@ -190,7 +190,7 @@ router.post('/', function(req, res) {
               checkIfBlocked(pool, username, userUrl)
               .then(function(rows){
                 if (rows.length > 0){
-                  console.log("cannot insert unlike notif");
+                  // console.log("cannot insert unlike notif");
                 }
               })
               InsertUnlikeNotif(pool, username, userUrl)
@@ -234,7 +234,7 @@ router.post('/chatCheck', function(req, res){
   checkIfMatch(pool, username, userUrl)
   .then(function(rows){
     if (rows.length > 0){
-      console.log(rows);
+      // console.log(rows);
       matchRows = rows;
         if ((matchRows[0].user_1 === username || matchRows[0].user_1 === userUrl) && (matchRows[0].user_2 === username || matchRows[0].user_2 === userUrl)){
           return res.status(201).send({elem :matchRows, match});

@@ -166,7 +166,7 @@ module.exports = function(io){
                   checkIfBlocked (pool, username, paramUser)
                   .then(function(rows){
                     if (rows.length > 0){
-                      console.log("cannot send view notif");
+                      // console.log("cannot send view notif");
                     } else {
                       insertViewCount(pool, username, paramUser)
                       insertPopScoreForVisit(pool, paramUser)
@@ -177,7 +177,7 @@ module.exports = function(io){
                     .then(function(rows){
                       if (rows.length > 0) {
                         if (rows[0].blocked === username && rows[0].blocker == paramUser) {
-                          console.log("cannot send notif");
+                          // console.log("cannot send notif");
                         }
                       } else {
                         io.to(io.clients[paramUser]).emit('notification');
