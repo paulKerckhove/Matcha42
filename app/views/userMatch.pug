@@ -107,8 +107,7 @@ html
 
           var slider = document.querySelector('#age-slider')
           var sliderInputs = slider.querySelectorAll('input[type=range]')
-          /*console.log(sliderInputs[0].value);
-          /*console.log(sliderInputs[1].value);*/*/
+          
 
           found_age = potentials.filter(v => v.age >= sliderInputs[0].value && v.age <= sliderInputs[1].value);
             document.getElementById('array-Filter').innerHTML = found_age.map((user) => {
